@@ -19,13 +19,8 @@
 
     <form action="#" method="post">
 
-        <label for="nome">Nome completo:</label>
+        <label for="nome">Nome do jogador:</label>
         <input type="text" id="nome" name="nome" required>
-
-        <br><br>
-
-        <label for="usuario">Nome de usuário:</label>
-        <input type="text" id="usuario" name="usuario" required>
 
         <br><br>
 
@@ -39,19 +34,29 @@
 
         <br><br>
 
-        <label for="confirmar">Confirmar senha:</label>
-        <input type="password" id="confirmar" name="confirmar" required>
+        <label for="categoria">Categoria favorita:</label>
+
+        <select id="categoria" name="categoria">
+            <option value="historia">História</option>
+            <option value="cinema">Cinema</option>
+            <option value="literatura">Literatura</option>
+            <option value="musica">Música</option>
+            <option value="ciencia">Ciência</option>
+            <option value="esportes">Esportes</option>
+        </select>
 
         <br><br>
 
-        <input type="submit" value="Cadastrar">
+        <input type="checkbox" id="termos" name="termos" required>
+        <label for="termos">Aceito os termos de uso do jogo.</label>
+
+        <br><br>
+
+        <input type="submit" value="Enviar">
+
         <input type="reset" value="Limpar">
 
     </form>
-
-    <hr>
-
-    <p>Game of the Years - 2026</p>
 
 </body>
 </html>
