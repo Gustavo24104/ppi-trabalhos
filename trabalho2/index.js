@@ -25,3 +25,4 @@ function trocaAluno() {
             alert("Aluno não encontrado! Você digitou corretamente?");
     }
 }
+
