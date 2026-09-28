@@ -1,16 +1,24 @@
 <!DOCTYPE html>
-<head> 
-<h1> Visualizador de alunos </h1>
+<head>
+
+    <meta charset="UTF-8">
+    <h1> Visualizador de alunos </h1>
+</head>
 
 <body>
-<script src="index.js"></script>
-<form action="" method="post" id="matriculaForm">
-    <label for="matriculaInput"> Matricula: </label>
-    <input type="text" id="matriculaInput" name="matriculaName" required>
-    <input type="button" onClick="trocaAluno();">
-</form>
-<img src="alunos/oswaldo.webp" alt="oswaldo" id="imagemAluno"> 
+
+    <script src="index.js"></script>
+    <!-- onsubmit retorna falso pra nao dar refresh na pagina -->
+    <form action="" method="post" id="matriculaForm" onsubmit="trocaAluno();return false;">
+   
+        <label for="matriculaInput"> Matricula: </label>
+        <input type="text" id="matriculaInput" name="matriculaName" required>
+        <input type="submit" value="Pesquisar">
+   
+    </form>
+
+    <img src="alunos/oswaldo.webp" alt="oswaldo" id="imagemAluno" width="512" height="512"> 
+
 </body>
 
-</head>
 
