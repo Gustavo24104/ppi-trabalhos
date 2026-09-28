@@ -2,7 +2,6 @@
 function trocaAluno() {
     var matricula = document.getElementById("matriculaInput");
     var imagem = document.getElementById("imagemAluno");
-    //alert(matricula.value.toUpperCase());
     switch (matricula.value.toUpperCase()) {
         case "12321BCC001":
             imagem.src='alunos/gggg.jpeg';
@@ -10,13 +9,13 @@ function trocaAluno() {
         case "1221BCC045":
             imagem.src='alunos/bernas.webp';
             break;
-        case "oswaldo":
+        case "OSWALDO":
             imagem.src='alunos/oswaldo.webp';
             break;
         case "12221BCC032":
             imagem.src='alunos/caio.webp';
             break;
-        case "vlc":
+        case "VLC":
             imagem.src='alunos/vlc.webp';
             break;
         case "12321BCC030":
