@@ -5,7 +5,6 @@ const imgs = ['alunos/gustavo.jpeg', 'alunos/bernardo.png', 'alunos/osvaldo.png'
 function trocaAluno() {
     var matricula = document.getElementById("matriculaInput");
     var imagem = document.getElementById("imagemAluno");
-    imagem.removeAttribute("hidden");
     switch (matricula.value.toUpperCase()) {
         case "12321BCC001":
             imagem.src=imgs[0];
@@ -33,7 +32,9 @@ function trocaAluno() {
             break;
         default:
             alert("Aluno não encontrado! Você digitou corretamente?");
+            return;
     }
+    imagem.removeAttribute("hidden");
 }
 
 
