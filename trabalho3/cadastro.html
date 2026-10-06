@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro - Game of the Years</title>
+
+    <style>
+        form {
+            background-color: rgb(241,233,210);
+            border: 2px solid rgb(0, 0, 0);
+            width: 400px;
+            padding: 20px;
+        }
+
+        #relatorio {
+            margin-top: 20px;
+            width: 400px;
+        }
+    </style>
+
+    <script src="cadastro.js"></script>
+</head>
+
+<body onload="iniciar()">
+
+    <h1>Game of the Years</h1>
+
+    <p>Cada ano esconde uma história!</p>
+
+    <h2>Cadastro de Jogador</h2>
+
+    <p>Preencha os dados abaixo para criar sua conta.</p>
+
+    <form id="formCadastro" name="formCadastro">
+
+        <fieldset>
+            <legend>Dados do jogador</legend>
+
+            <label for="nome">Nome do jogador:</label>
+            <input type="text" id="nome" name="nome" placeholder="Digite seu nome"
+                   onfocus="focoNome()" onblur="sairNome()" required>
+
+            <br><br>
+
+            <label for="apelido">Apelido (nick):</label>
+            <input type="text" id="apelido" name="apelido" placeholder="Como quer ser chamado no ranking" required>
+
+            <br><br>
+
+            <label for="email">E-mail:</label>
+            <input type="text" id="email" name="email" placeholder="Digite seu e-mail" required>
+
+            <br><br>
+
+            <label for="cidade">Cidade:</label>
+            <input type="text" id="cidade" name="cidade" placeholder="Digite sua cidade" required>
+
+            <br><br>
+
+            <label for="ano">Ano favorito:</label>
+            <input type="text" id="ano" name="ano" placeholder="Ex.: 1994" required>
+        </fieldset>
+
+        <br>
+
+        <fieldset>
+            <legend>Preferências</legend>
+
+            <label for="categoria">Categoria favorita:</label>
+            <select id="categoria" name="categoria" required>
+                <option value="" selected>-- Selecione --</option>
+                <option value="historia">História</option>
+                <option value="cinema">Cinema</option>
+                <option value="literatura">Literatura</option>
+                <option value="musica">Música</option>
+                <option value="ciencia">Ciência</option>
+                <option value="esportes">Esportes</option>
+            </select>
+        </fieldset>
+
+        <br>
+
+        <button type="button" onclick="gerarRelatorio()">Cadastrar</button>
+        <input type="reset" value="Limpar" onclick="limparRelatorio()">
+
+    </form>
+
+    <div id="relatorio"></div>
+
+</body>
+</html>
