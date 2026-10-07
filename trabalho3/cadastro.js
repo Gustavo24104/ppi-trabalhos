@@ -1,11 +1,11 @@
 // imagem correspondente a cada opção do <select> de categoria
 const imagensCategoria = {
-    historia: 'categorias/historia.svg',
-    cinema: 'categorias/cinema.svg',
-    literatura: 'categorias/literatura.svg',
-    musica: 'categorias/musica.svg',
-    ciencia: 'categorias/ciencia.svg',
-    esportes: 'categorias/esportes.svg'
+    historia: 'categorias/historia.png',
+    cinema: 'categorias/cinema.png',
+    literatura: 'categorias/literatura.png',
+    musica: 'categorias/musica.png',
+    ciencia: 'categorias/ciencia.png',
+    esportes: 'categorias/esportes.png'
 };
 
 // ao carregar a página, o primeiro campo recebe o foco (dispara o evento 'focus')
