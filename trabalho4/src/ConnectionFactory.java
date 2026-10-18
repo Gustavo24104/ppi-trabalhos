@@ -10,11 +10,11 @@ public class ConnectionFactory {
     static String databaseName = "yeardle";
     static String username = "yeardleADM";
     static String password = "yeardlePass";
-    static String url = "jdbc:mysql://localhost:3306/" + databaseName + "?useSSL=false&useTimezone=true&serverTimezone=UTC";
+    static String url = "jdbc:mysql://localhost:3306/" + databaseName + "?useSSL=false&allowPublicKeyRetrieval=true&useTimezone=true&serverTimezone=UTC";
 
     public Connection getConnection() {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -30,7 +30,8 @@ CREATE DATABASE yeardle;
 
 USE yeardle;
 
-GRANT ALL ON yeardle.* TO yeardleADM IDENTIFIED BY 'yeardlePass';
+CREATE USER 'yeardleADM'@'localhost' IDENTIFIED BY 'yeardlePass';
+GRANT ALL ON yeardle.* TO 'yeardleADM'@'localhost';
 
 FLUSH PRIVILEGES;
 
