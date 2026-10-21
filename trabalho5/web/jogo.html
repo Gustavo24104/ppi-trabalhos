@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Jogo</title>
+</head>
+<body>
+<h1>Jogo</h1>
+
+<form action="jogo" method="post">
+    <fieldset>
+        <legend>Dados do jogo</legend>
+
+        <p>
+            <label for="ano">Ano:</label>
+            <input type="number" id="ano" name="ano" min="1901" required placeholder="Ex.: 1958">
+        </p>
+        <p>
+            <label for="dataJogada">Data jogada:</label>
+            <input type="date" id="dataJogada" name="dataJogada">
+        </p>
+        <p>
+            <label for="categoria">Categoria:</label>
+            <select id="categoria" name="categoria">
+                <option value="">(nenhuma)</option>
+                <option value="historia">História</option>
+                <option value="cinema">Cinema</option>
+                <option value="literatura">Literatura</option>
+                <option value="musica">Música</option>
+                <option value="ciencias">Ciências</option>
+                <option value="esportes">Esportes</option>
+            </select>
+        </p>
+    </fieldset>
+
+    <p>O ano é a chave: consultar e remover usam só ele.</p>
+
+    <button type="submit" name="acao" value="cadastrar">Cadastrar</button>
+    <button type="submit" name="acao" value="alterar">Alterar</button>
+    <button type="submit" name="acao" value="consultar">Consultar</button>
+    <button type="submit" name="acao" value="remover">Remover</button>
+    <button type="reset">Limpar</button>
+</form>
+</body>
+</html>
