@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Usuário</title>
+</head>
+<body>
+<h1>Usuário</h1>
+
+<form action="usuario" method="post">
+    <fieldset>
+        <legend>Identificação</legend>
+
+        <p>
+            <label for="userID">ID do usuário:</label>
+            <input type="number" id="userID" name="userID" placeholder="Vazio no cadastro = gerado automaticamente">
+        </p>
+        <p>
+            <label for="nomeReal">Nome real:</label>
+            <input type="text" id="nomeReal" name="nomeReal" maxlength="100" placeholder="Ex.: João da Silva">
+        </p>
+        <p>
+            <label for="nickname">Apelido:</label>
+            <input type="text" id="nickname" name="nickname" maxlength="15" placeholder="Ex.: joaozinho">
+        </p>
+        <p>
+            <label for="email">E-mail:</label>
+            <input type="email" id="email" name="email" maxlength="50" placeholder="Ex.: joao@gmail.com">
+        </p>
+        <p>
+            <label for="cidade">Cidade:</label>
+            <input type="text" id="cidade" name="cidade" maxlength="100" placeholder="Ex.: Uberlândia">
+        </p>
+    </fieldset>
+
+    <fieldset>
+        <legend>Jogo</legend>
+
+        <p>
+            <label for="pontosTotais">Pontos totais:</label>
+            <input type="number" id="pontosTotais" name="pontosTotais" placeholder="Ex.: 0">
+        </p>
+        <p>
+            <label for="anoFav">Ano favorito:</label>
+            <input type="number" id="anoFav" name="anoFav" min="1901" placeholder="Ex.: 1958">
+        </p>
+        <p>
+            <label for="categoriaFav">Categoria favorita:</label>
+            <select id="categoriaFav" name="categoriaFav">
+                <option value="">(nenhuma)</option>
+                <option value="historia">História</option>
+                <option value="cinema">Cinema</option>
+                <option value="literatura">Literatura</option>
+                <option value="musica">Música</option>
+                <option value="ciencias">Ciências</option>
+                <option value="esportes">Esportes</option>
+            </select>
+        </p>
+    </fieldset>
+
+    <p>Cadastrar e alterar usam todos os campos, menos ano e categoria favoritos, que são opcionais. Consultar e remover usam só o ID.</p>
+
+    <button type="submit" name="acao" value="cadastrar">Cadastrar</button>
+    <button type="submit" name="acao" value="alterar">Alterar</button>
+    <button type="submit" name="acao" value="consultar">Consultar</button>
+    <button type="submit" name="acao" value="remover">Remover</button>
+    <button type="reset">Limpar</button>
+</form>
+</body>
+</html>
