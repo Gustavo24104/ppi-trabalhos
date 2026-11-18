@@ -4,9 +4,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Date;
 import java.util.Calendar;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @WebServlet("/jogo")
 public class JogoServlet extends HttpServlet {
@@ -37,7 +38,9 @@ public class JogoServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String acao = req.getParameter("acao");
+        boolean sucesso = false;
         String mensagem;
+        Map<String, String> detalhes = new LinkedHashMap<>();
 
         try {
             int ano = Integer.parseInt(req.getParameter("ano"));
@@ -55,22 +58,32 @@ public class JogoServlet extends HttpServlet {
 
                 if ("cadastrar".equals(acao)) {
                     dao.adiciona(jogo);
+                    sucesso = true;
                     mensagem = "Jogo cadastrado com sucesso!";
+                } else if (dao.altera(jogo)) {
+                    sucesso = true;
+                    mensagem = "Jogo alterado com sucesso!";
                 } else {
-                    mensagem = dao.altera(jogo) ? "Jogo alterado com sucesso!" : "Nenhum jogo encontrado com esse ano.";
+                    mensagem = "Nenhum jogo encontrado com esse ano.";
                 }
             } else if ("consultar".equals(acao)) {
                 Jogo jogo = dao.busca(ano);
                 if (jogo == null) {
                     mensagem = "Nenhum jogo encontrado com esse ano.";
                 } else {
-                    String data = jogo.getDataJogada() == null ? "-" : new Date(jogo.getDataJogada().getTimeInMillis()).toString();
-                    mensagem = "<b>Ano:</b> " + jogo.getAno()
-                            + "<br><b>Data jogada:</b> " + data
-                            + "<br><b>Categoria:</b> " + (jogo.getCategoria() == null ? "-" : escapa(jogo.getCategoria()));
+                    sucesso = true;
+                    mensagem = "Jogo encontrado com sucesso!";
+                    detalhes.put("Ano", String.valueOf(jogo.getAno()));
+                    detalhes.put("Data jogada", jogo.getDataJogada() == null ? "-" : new Date(jogo.getDataJogada().getTimeInMillis()).toString());
+                    detalhes.put("Categoria", jogo.getCategoria() == null ? "-" : jogo.getCategoria());
                 }
             } else if ("remover".equals(acao)) {
-                mensagem = dao.remove(ano) ? "Jogo removido com sucesso!" : "Nenhum jogo encontrado com esse ano.";
+                if (dao.remove(ano)) {
+                    sucesso = true;
+                    mensagem = "Jogo removido com sucesso!";
+                } else {
+                    mensagem = "Nenhum jogo encontrado com esse ano.";
+                }
             } else {
                 mensagem = "Ação inválida.";
             }
@@ -79,20 +92,15 @@ public class JogoServlet extends HttpServlet {
             mensagem = "Preencha os campos com valores válidos.";
         } catch (RuntimeException e) {
             // erros do banco, ex.: ano duplicado ou fora da regra (ano > 1900)
-            mensagem = "Erro no banco de dados: " + escapa(String.valueOf(e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
+            mensagem = "Erro no banco de dados: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
         }
 
-        PrintWriter out = resp.getWriter();
-        out.println("<!DOCTYPE html><html lang=\"pt-br\"><head><meta charset=\"UTF-8\"><title>Jogo</title></head><body>");
-        out.println("<h1>Jogo</h1>");
-        out.println("<p>" + mensagem + "</p>");
-        out.println("<a href=\"jogo.jsp\">Voltar</a>");
-        out.println("</body></html>");
-    }
-
-    // evita que o texto digitado seja interpretado como HTML
-    private static String escapa(String s) {
-        return s == null ? "" : s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+        req.setAttribute("status", sucesso ? "sucesso" : "erro");
+        req.setAttribute("entidade", "Jogo");
+        req.setAttribute("mensagem", mensagem);
+        req.setAttribute("detalhes", detalhes);
+        req.setAttribute("paginaVoltar", "jogo.jsp");
+        req.getRequestDispatcher("roteador.jsp").forward(req, resp);
     }
 
     private static String vazioParaNulo(String s) {

@@ -4,7 +4,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @WebServlet("/usuario")
 public class UsuarioServlet extends HttpServlet {
@@ -35,7 +36,9 @@ public class UsuarioServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String acao = req.getParameter("acao");
+        boolean sucesso = false;
         String mensagem;
+        Map<String, String> detalhes = new LinkedHashMap<>();
 
         try {
             if ("cadastrar".equals(acao) || "alterar".equals(acao)) {
@@ -58,28 +61,37 @@ public class UsuarioServlet extends HttpServlet {
 
                 if ("cadastrar".equals(acao)) {
                     dao.adiciona(usuario);
+                    sucesso = true;
                     mensagem = "Usuário cadastrado com sucesso!";
+                } else if (usuario.getUserID() > 0 && dao.altera(usuario)) {
+                    sucesso = true;
+                    mensagem = "Usuário alterado com sucesso!";
                 } else {
-                    mensagem = usuario.getUserID() > 0 && dao.altera(usuario)
-                            ? "Usuário alterado com sucesso!" : "Nenhum usuário encontrado com esse ID.";
+                    mensagem = "Nenhum usuário encontrado com esse ID.";
                 }
             } else if ("consultar".equals(acao)) {
                 Usuario usuario = dao.busca(Integer.parseInt(req.getParameter("userID")));
                 if (usuario == null) {
                     mensagem = "Nenhum usuário encontrado com esse ID.";
                 } else {
-                    mensagem = "<b>ID:</b> " + usuario.getUserID()
-                            + "<br><b>Pontos totais:</b> " + usuario.getPontosTotais()
-                            + "<br><b>Nome:</b> " + escapa(usuario.getNomeReal())
-                            + "<br><b>Apelido:</b> " + escapa(usuario.getNickname())
-                            + "<br><b>E-mail:</b> " + escapa(usuario.getEmail())
-                            + "<br><b>Cidade:</b> " + escapa(usuario.getCidade())
-                            + "<br><b>Ano favorito:</b> " + (usuario.getAnoFav() > 0 ? usuario.getAnoFav() : "-")
-                            + "<br><b>Categoria favorita:</b> " + (usuario.getCategoriaFav() == null ? "-" : escapa(usuario.getCategoriaFav()));
+                    sucesso = true;
+                    mensagem = "Usuário encontrado com sucesso!";
+                    detalhes.put("ID", String.valueOf(usuario.getUserID()));
+                    detalhes.put("Pontos totais", String.valueOf(usuario.getPontosTotais()));
+                    detalhes.put("Nome", usuario.getNomeReal());
+                    detalhes.put("Apelido", usuario.getNickname());
+                    detalhes.put("E-mail", usuario.getEmail());
+                    detalhes.put("Cidade", usuario.getCidade());
+                    detalhes.put("Ano favorito", usuario.getAnoFav() > 0 ? String.valueOf(usuario.getAnoFav()) : "-");
+                    detalhes.put("Categoria favorita", usuario.getCategoriaFav() == null ? "-" : usuario.getCategoriaFav());
                 }
             } else if ("remover".equals(acao)) {
-                mensagem = dao.remove(Integer.parseInt(req.getParameter("userID")))
-                        ? "Usuário removido com sucesso!" : "Nenhum usuário encontrado com esse ID.";
+                if (dao.remove(Integer.parseInt(req.getParameter("userID")))) {
+                    sucesso = true;
+                    mensagem = "Usuário removido com sucesso!";
+                } else {
+                    mensagem = "Nenhum usuário encontrado com esse ID.";
+                }
             } else {
                 mensagem = "Ação inválida.";
             }
@@ -87,19 +99,14 @@ public class UsuarioServlet extends HttpServlet {
             mensagem = "Preencha os campos numéricos com valores válidos.";
         } catch (RuntimeException e) {
             // erros do banco, ex.: apelido ou e-mail duplicado
-            mensagem = "Erro no banco de dados: " + escapa(String.valueOf(e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
+            mensagem = "Erro no banco de dados: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
         }
 
-        PrintWriter out = resp.getWriter();
-        out.println("<!DOCTYPE html><html lang=\"pt-br\"><head><meta charset=\"UTF-8\"><title>Usuário</title></head><body>");
-        out.println("<h1>Usuário</h1>");
-        out.println("<p>" + mensagem + "</p>");
-        out.println("<a href=\"usuario.jsp\">Voltar</a>");
-        out.println("</body></html>");
-    }
-
-    // evita que o texto digitado seja interpretado como HTML
-    private static String escapa(String s) {
-        return s == null ? "" : s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+        req.setAttribute("status", sucesso ? "sucesso" : "erro");
+        req.setAttribute("entidade", "Usuário");
+        req.setAttribute("mensagem", mensagem);
+        req.setAttribute("detalhes", detalhes);
+        req.setAttribute("paginaVoltar", "usuario.jsp");
+        req.getRequestDispatcher("roteador.jsp").forward(req, resp);
     }
 }
