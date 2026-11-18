@@ -4,7 +4,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @WebServlet("/usergame")
@@ -36,47 +38,56 @@ public class UserGameServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String acao = req.getParameter("acao");
+        Campos campos = new Campos(req);
         boolean sucesso = false;
         String mensagem;
         Map<String, String> detalhes = new LinkedHashMap<>();
+        List<Map<String, String>> lista = null;
 
         try {
-            // a chave primaria e composta: (userID, ano)
-            int userID = Integer.parseInt(req.getParameter("userID"));
-            int ano = Integer.parseInt(req.getParameter("ano"));
-
-            if ("cadastrar".equals(acao)) {
+            if ("listar".equals(acao)) {
+                lista = new ArrayList<>();
+                for (UserGame userGame : dao.getLista()) {
+                    lista.add(detalhesDe(userGame));
+                }
+                sucesso = true;
+                mensagem = lista.isEmpty() ? "Nenhuma partida cadastrada." : lista.size() + " partida(s) cadastrada(s).";
+            } else if ("cadastrar".equals(acao)) {
                 UserGame userGame = new UserGame();
-                userGame.setUserID(userID);
-                userGame.setAno(ano);
-                userGame.setPontuacao(Integer.parseInt(req.getParameter("pontuacao")));
+                userGame.setUserID(campos.inteiro("userID"));
+                userGame.setAno(campos.inteiro("ano"));
+                userGame.setPontuacao(campos.inteiro("pontuacao"));
                 dao.adiciona(userGame);
                 sucesso = true;
                 mensagem = "Partida cadastrada com sucesso!";
             } else if ("alterar".equals(acao)) {
-                UserGame userGame = new UserGame();
-                userGame.setUserID(userID);
-                userGame.setAno(ano);
-                userGame.setPontuacao(Integer.parseInt(req.getParameter("pontuacao")));
-                if (dao.altera(userGame)) {
-                    sucesso = true;
-                    mensagem = "Partida alterada com sucesso!";
-                } else {
+                // a chave primaria e composta: (userID, ano); pontuacao é NOT NULL, então não pode ser apagada
+                UserGame userGame = dao.busca(campos.inteiro("userID"), campos.inteiro("ano"));
+                if (userGame == null) {
                     mensagem = "Nenhuma partida encontrada para esse usuário e ano.";
+                } else if (!campos.preenchido("pontuacao")) {
+                    mensagem = "Nenhuma alteração informada: preencha a nova pontuação.";
+                } else {
+                    userGame.setPontuacao(campos.inteiro("pontuacao"));
+                    if (dao.altera(userGame)) {
+                        sucesso = true;
+                        mensagem = "Partida alterada com sucesso!";
+                        detalhes = detalhesDe(userGame);
+                    } else {
+                        mensagem = "Nenhuma partida encontrada para esse usuário e ano.";
+                    }
                 }
             } else if ("consultar".equals(acao)) {
-                UserGame userGame = dao.busca(userID, ano);
+                UserGame userGame = dao.busca(campos.inteiro("userID"), campos.inteiro("ano"));
                 if (userGame == null) {
                     mensagem = "Nenhuma partida encontrada para esse usuário e ano.";
                 } else {
                     sucesso = true;
                     mensagem = "Partida encontrada com sucesso!";
-                    detalhes.put("ID do usuário", String.valueOf(userGame.getUserID()));
-                    detalhes.put("Ano", String.valueOf(userGame.getAno()));
-                    detalhes.put("Pontuação", String.valueOf(userGame.getPontuacao()));
+                    detalhes = detalhesDe(userGame);
                 }
             } else if ("remover".equals(acao)) {
-                if (dao.remove(userID, ano)) {
+                if (dao.remove(campos.inteiro("userID"), campos.inteiro("ano"))) {
                     sucesso = true;
                     mensagem = "Partida removida com sucesso!";
                 } else {
@@ -96,7 +107,17 @@ public class UserGameServlet extends HttpServlet {
         req.setAttribute("entidade", "Partida (UserGame)");
         req.setAttribute("mensagem", mensagem);
         req.setAttribute("detalhes", detalhes);
+        req.setAttribute("lista", lista);
         req.setAttribute("paginaVoltar", "usergame.jsp");
         req.getRequestDispatcher("roteador.jsp").forward(req, resp);
+    }
+
+    // campos da partida para a tabela da página de sucesso
+    private static Map<String, String> detalhesDe(UserGame userGame) {
+        Map<String, String> d = new LinkedHashMap<>();
+        d.put("ID do usuário", String.valueOf(userGame.getUserID()));
+        d.put("Ano", String.valueOf(userGame.getAno()));
+        d.put("Pontuação", String.valueOf(userGame.getPontuacao()));
+        return d;
     }
 }

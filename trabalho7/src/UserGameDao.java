@@ -1,4 +1,6 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserGameDao {
 
@@ -38,15 +40,30 @@ public class UserGameDao {
 
             UserGame userGame = null;
             if (rs.next()) {
-                userGame = new UserGame();
-                userGame.setUserID(rs.getInt("userID"));
-                userGame.setAno(rs.getInt("ano"));
-                userGame.setPontuacao(rs.getInt("pontuacao"));
+                userGame = monta(rs);
             }
 
             rs.close();
             stmt.close();
             return userGame;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<UserGame> getLista() {
+        try {
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM userGame ORDER BY userID, ano");
+            ResultSet rs = stmt.executeQuery();
+
+            List<UserGame> partidas = new ArrayList<UserGame>();
+            while (rs.next()) {
+                partidas.add(monta(rs));
+            }
+
+            rs.close();
+            stmt.close();
+            return partidas;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -129,5 +146,14 @@ public class UserGameDao {
 
     public void fechaConexao() throws SQLException {
         connection.close();
+    }
+
+    // cria o UserGame a partir da linha atual do ResultSet
+    private UserGame monta(ResultSet rs) throws SQLException {
+        UserGame userGame = new UserGame();
+        userGame.setUserID(rs.getInt("userID"));
+        userGame.setAno(rs.getInt("ano"));
+        userGame.setPontuacao(rs.getInt("pontuacao"));
+        return userGame;
     }
 }

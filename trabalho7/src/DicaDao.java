@@ -24,7 +24,7 @@ public class DicaDao {
 
             // seta os valores
             stmt.setString(1, dica.getTextoDica());
-            stmt.setInt(2, dica.getAnoDica());
+            setAno(stmt, 2, dica.getAnoDica());
             if (!semId) {
                 stmt.setInt(3, dica.getDicaID());
             }
@@ -61,7 +61,7 @@ public class DicaDao {
 
     public List<Dica> getLista() {
         try {
-            PreparedStatement stmt = this.connection.prepareStatement("SELECT * FROM dica");
+            PreparedStatement stmt = this.connection.prepareStatement("SELECT * FROM dica ORDER BY dicaID");
             ResultSet rs = stmt.executeQuery();
 
             List<Dica> dicas = new ArrayList<Dica>();
@@ -93,7 +93,7 @@ public class DicaDao {
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, dica.getTextoDica());
-            stmt.setInt(2, dica.getAnoDica());
+            setAno(stmt, 2, dica.getAnoDica());
             stmt.setInt(3, dica.getDicaID());
             int linhas = stmt.executeUpdate();
             stmt.close();
@@ -128,5 +128,14 @@ public class DicaDao {
 
     public void fechaConexao() throws SQLException {
         connection.close();
+    }
+
+    // anoDica é opcional na tabela: 0 grava NULL (e NULL é lido como 0)
+    private void setAno(PreparedStatement stmt, int indice, int ano) throws SQLException {
+        if (ano > 0) {
+            stmt.setInt(indice, ano);
+        } else {
+            stmt.setNull(indice, Types.INTEGER);
+        }
     }
 }

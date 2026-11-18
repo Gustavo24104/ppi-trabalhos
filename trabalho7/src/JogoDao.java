@@ -1,5 +1,7 @@
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class JogoDao {
 
@@ -38,21 +40,30 @@ public class JogoDao {
 
             Jogo jogo = null;
             if (rs.next()) {
-                jogo = new Jogo();
-                jogo.setAno(rs.getInt("ano"));
-                jogo.setCategoria(rs.getString("categoria"));
-
-                // montando a data através do Calendar
-                if (rs.getDate("dataJogada") != null) {
-                    Calendar data = Calendar.getInstance();
-                    data.setTime(rs.getDate("dataJogada"));
-                    jogo.setDataJogada(data);
-                }
+                jogo = monta(rs);
             }
 
             rs.close();
             stmt.close();
             return jogo;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Jogo> getLista() {
+        try {
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM jogo ORDER BY ano");
+            ResultSet rs = stmt.executeQuery();
+
+            List<Jogo> jogos = new ArrayList<Jogo>();
+            while (rs.next()) {
+                jogos.add(monta(rs));
+            }
+
+            rs.close();
+            stmt.close();
+            return jogos;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -90,6 +101,21 @@ public class JogoDao {
 
     public void fechaConexao() throws SQLException {
         connection.close();
+    }
+
+    // cria o Jogo a partir da linha atual do ResultSet
+    private Jogo monta(ResultSet rs) throws SQLException {
+        Jogo jogo = new Jogo();
+        jogo.setAno(rs.getInt("ano"));
+        jogo.setCategoria(rs.getString("categoria"));
+
+        // montando a data através do Calendar
+        if (rs.getDate("dataJogada") != null) {
+            Calendar data = Calendar.getInstance();
+            data.setTime(rs.getDate("dataJogada"));
+            jogo.setDataJogada(data);
+        }
+        return jogo;
     }
 
     // a data é opcional: sem data, grava NULL

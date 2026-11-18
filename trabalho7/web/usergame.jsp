@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<% request.setCharacterEncoding("UTF-8"); /* antes do jsp:include, para o jsp:param com acento chegar certo */ %>
 <jsp:include page="header.jsp">
     <jsp:param name="tituloPagina" value="UserGame" />
 </jsp:include>
@@ -28,12 +29,13 @@
             </p>
         </fieldset>
 
-        <p>A pontuação é obrigatória para cadastrar e alterar.</p>
+        <p>A pontuação é obrigatória para cadastrar e alterar; ela não pode ficar vazia no banco.</p>
 
         <button type="submit" name="acao" value="cadastrar">Cadastrar</button>
         <button type="submit" name="acao" value="alterar">Alterar</button>
         <button type="submit" name="acao" value="consultar">Consultar</button>
         <button type="submit" name="acao" value="remover">Remover</button>
+        <button type="submit" name="acao" value="listar" formnovalidate>Listar todos</button>
         <button type="reset">Limpar</button>
     </form>
 </main>

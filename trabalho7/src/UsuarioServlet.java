@@ -4,7 +4,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @WebServlet("/usuario")
@@ -36,65 +38,112 @@ public class UsuarioServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String acao = req.getParameter("acao");
+        Campos campos = new Campos(req);
         boolean sucesso = false;
         String mensagem;
         Map<String, String> detalhes = new LinkedHashMap<>();
+        List<Map<String, String>> lista = null;
 
         try {
-            if ("cadastrar".equals(acao) || "alterar".equals(acao)) {
+            if ("cadastrar".equals(acao)) {
                 Usuario usuario = new Usuario();
-                usuario.setPontosTotais(Integer.parseInt(req.getParameter("pontosTotais")));
-                usuario.setNomeReal(req.getParameter("nomeReal"));
-                usuario.setNickname(req.getParameter("nickname"));
-                usuario.setEmail(req.getParameter("email"));
-                usuario.setCidade(req.getParameter("cidade"));
-                String anoFav = req.getParameter("anoFav");
-                if (anoFav != null && !anoFav.isBlank()) {
-                    usuario.setAnoFav(Integer.parseInt(anoFav));
+                usuario.setPontosTotais(campos.inteiro("pontosTotais"));
+                usuario.setNomeReal(campos.texto("nomeReal"));
+                usuario.setNickname(campos.texto("nickname"));
+                usuario.setEmail(campos.texto("email"));
+                usuario.setCidade(campos.texto("cidade"));
+                if (campos.preenchido("anoFav")) {
+                    usuario.setAnoFav(campos.inteiro("anoFav"));
                 }
-                String categoria = req.getParameter("categoriaFav");
-                usuario.setCategoriaFav(categoria == null || categoria.isBlank() ? null : categoria);
-                String id = req.getParameter("userID");
-                if (id != null && !id.isBlank()) {
-                    usuario.setUserID(Integer.parseInt(id));
+                usuario.setCategoriaFav(campos.preenchido("categoriaFav") ? campos.texto("categoriaFav") : null);
+                if (campos.preenchido("userID")) {
+                    usuario.setUserID(campos.inteiro("userID"));
                 }
-
-                if ("cadastrar".equals(acao)) {
-                    dao.adiciona(usuario);
-                    sucesso = true;
-                    mensagem = "Usuário cadastrado com sucesso!";
-                } else if (usuario.getUserID() > 0 && dao.altera(usuario)) {
-                    sucesso = true;
-                    mensagem = "Usuário alterado com sucesso!";
-                } else {
+                dao.adiciona(usuario);
+                sucesso = true;
+                mensagem = "Usuário cadastrado com sucesso!";
+            } else if ("alterar".equals(acao)) {
+                // só o ID é obrigatório: campo vazio mantém o valor salvo
+                Usuario usuario = dao.busca(campos.inteiro("userID"));
+                if (usuario == null) {
                     mensagem = "Nenhum usuário encontrado com esse ID.";
+                } else {
+                    boolean mudou = false;
+                    // campos NOT NULL no banco: só trocam de valor, não podem ser apagados
+                    if (campos.preenchido("pontosTotais")) {
+                        usuario.setPontosTotais(campos.inteiro("pontosTotais"));
+                        mudou = true;
+                    }
+                    if (campos.preenchido("nomeReal")) {
+                        usuario.setNomeReal(campos.texto("nomeReal"));
+                        mudou = true;
+                    }
+                    if (campos.preenchido("nickname")) {
+                        usuario.setNickname(campos.texto("nickname"));
+                        mudou = true;
+                    }
+                    if (campos.preenchido("email")) {
+                        usuario.setEmail(campos.texto("email"));
+                        mudou = true;
+                    }
+                    if (campos.preenchido("cidade")) {
+                        usuario.setCidade(campos.texto("cidade"));
+                        mudou = true;
+                    }
+                    // campos opcionais: podem ser apagados (NULL)
+                    if (campos.apagar("anoFav", "Ano favorito")) {
+                        usuario.setAnoFav(0); // o DAO grava 0 como NULL
+                        mudou = true;
+                    } else if (campos.preenchido("anoFav")) {
+                        usuario.setAnoFav(campos.inteiro("anoFav"));
+                        mudou = true;
+                    }
+                    if (campos.apagar("categoriaFav", "Categoria favorita")) {
+                        usuario.setCategoriaFav(null);
+                        mudou = true;
+                    } else if (campos.preenchido("categoriaFav")) {
+                        usuario.setCategoriaFav(campos.texto("categoriaFav"));
+                        mudou = true;
+                    }
+
+                    if (!mudou) {
+                        mensagem = "Nenhuma alteração informada: preencha ao menos um campo ou marque \"apagar valor salvo\".";
+                    } else if (dao.altera(usuario)) {
+                        sucesso = true;
+                        mensagem = "Usuário alterado com sucesso!";
+                        detalhes = detalhesDe(usuario);
+                    } else {
+                        mensagem = "Nenhum usuário encontrado com esse ID.";
+                    }
                 }
             } else if ("consultar".equals(acao)) {
-                Usuario usuario = dao.busca(Integer.parseInt(req.getParameter("userID")));
+                Usuario usuario = dao.busca(campos.inteiro("userID"));
                 if (usuario == null) {
                     mensagem = "Nenhum usuário encontrado com esse ID.";
                 } else {
                     sucesso = true;
                     mensagem = "Usuário encontrado com sucesso!";
-                    detalhes.put("ID", String.valueOf(usuario.getUserID()));
-                    detalhes.put("Pontos totais", String.valueOf(usuario.getPontosTotais()));
-                    detalhes.put("Nome", usuario.getNomeReal());
-                    detalhes.put("Apelido", usuario.getNickname());
-                    detalhes.put("E-mail", usuario.getEmail());
-                    detalhes.put("Cidade", usuario.getCidade());
-                    detalhes.put("Ano favorito", usuario.getAnoFav() > 0 ? String.valueOf(usuario.getAnoFav()) : "-");
-                    detalhes.put("Categoria favorita", usuario.getCategoriaFav() == null ? "-" : usuario.getCategoriaFav());
+                    detalhes = detalhesDe(usuario);
                 }
             } else if ("remover".equals(acao)) {
-                if (dao.remove(Integer.parseInt(req.getParameter("userID")))) {
+                if (dao.remove(campos.inteiro("userID"))) {
                     sucesso = true;
                     mensagem = "Usuário removido com sucesso!";
                 } else {
                     mensagem = "Nenhum usuário encontrado com esse ID.";
                 }
+            } else if ("listar".equals(acao)) {
+                lista = new ArrayList<>();
+                for (Usuario usuario : dao.getLista()) {
+                    lista.add(detalhesDe(usuario));
+                }
+                sucesso = true;
+                mensagem = lista.isEmpty() ? "Nenhum usuário cadastrado." : lista.size() + " usuário(s) cadastrado(s).";
             } else {
                 mensagem = "Ação inválida.";
             }
+        } catch (Campos.CampoInvalidoException e) {
+            mensagem = e.getMessage();
         } catch (NumberFormatException e) {
             mensagem = "Preencha os campos numéricos com valores válidos.";
         } catch (RuntimeException e) {
@@ -106,7 +155,22 @@ public class UsuarioServlet extends HttpServlet {
         req.setAttribute("entidade", "Usuário");
         req.setAttribute("mensagem", mensagem);
         req.setAttribute("detalhes", detalhes);
+        req.setAttribute("lista", lista);
         req.setAttribute("paginaVoltar", "usuario.jsp");
         req.getRequestDispatcher("roteador.jsp").forward(req, resp);
+    }
+
+    // campos do usuário para a tabela da página de sucesso
+    private static Map<String, String> detalhesDe(Usuario usuario) {
+        Map<String, String> d = new LinkedHashMap<>();
+        d.put("ID", String.valueOf(usuario.getUserID()));
+        d.put("Pontos totais", String.valueOf(usuario.getPontosTotais()));
+        d.put("Nome", usuario.getNomeReal());
+        d.put("Apelido", usuario.getNickname());
+        d.put("E-mail", usuario.getEmail());
+        d.put("Cidade", usuario.getCidade());
+        d.put("Ano favorito", usuario.getAnoFav() > 0 ? String.valueOf(usuario.getAnoFav()) : "-");
+        d.put("Categoria favorita", usuario.getCategoriaFav() == null ? "-" : usuario.getCategoriaFav());
+        return d;
     }
 }
