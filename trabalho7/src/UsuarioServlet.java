@@ -94,7 +94,7 @@ public class UsuarioServlet extends HttpServlet {
         out.println("<!DOCTYPE html><html lang=\"pt-br\"><head><meta charset=\"UTF-8\"><title>Usuário</title></head><body>");
         out.println("<h1>Usuário</h1>");
         out.println("<p>" + mensagem + "</p>");
-        out.println("<a href=\"usuario.html\">Voltar</a>");
+        out.println("<a href=\"usuario.jsp\">Voltar</a>");
         out.println("</body></html>");
     }
 

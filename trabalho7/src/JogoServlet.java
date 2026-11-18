@@ -86,7 +86,7 @@ public class JogoServlet extends HttpServlet {
         out.println("<!DOCTYPE html><html lang=\"pt-br\"><head><meta charset=\"UTF-8\"><title>Jogo</title></head><body>");
         out.println("<h1>Jogo</h1>");
         out.println("<p>" + mensagem + "</p>");
-        out.println("<a href=\"jogo.html\">Voltar</a>");
+        out.println("<a href=\"jogo.jsp\">Voltar</a>");
         out.println("</body></html>");
     }
 
