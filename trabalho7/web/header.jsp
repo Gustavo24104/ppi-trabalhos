@@ -25,6 +25,9 @@
         table { border-collapse: collapse; margin-top: 14px; width: 100%; }
         th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; }
         th { background: #f4f4f4; width: 32%; }
+        .rolagem { overflow-x: auto; }
+        table.lista th { width: auto; white-space: nowrap; }
+        label.apagar { margin-left: 10px; font-size: 0.9rem; color: #555; }
         footer { border-top: 1px solid #ccc; margin-top: 28px; padding-top: 12px; font-size: 0.9rem; color: #666; }
     </style>
 </head>

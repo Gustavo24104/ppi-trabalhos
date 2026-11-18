@@ -1,4 +1,6 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UsuarioDao {
 
@@ -41,20 +43,30 @@ public class UsuarioDao {
 
             Usuario usuario = null;
             if (rs.next()) {
-                usuario = new Usuario();
-                usuario.setUserID(rs.getInt("userID"));
-                usuario.setPontosTotais(rs.getInt("pontosTotais"));
-                usuario.setNomeReal(rs.getString("nomeReal"));
-                usuario.setNickname(rs.getString("nickname"));
-                usuario.setEmail(rs.getString("email"));
-                usuario.setCidade(rs.getString("cidade"));
-                usuario.setAnoFav(rs.getInt("anoFav"));
-                usuario.setCategoriaFav(rs.getString("categoriaFav"));
+                usuario = monta(rs);
             }
 
             rs.close();
             stmt.close();
             return usuario;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Usuario> getLista() {
+        try {
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM users ORDER BY userID");
+            ResultSet rs = stmt.executeQuery();
+
+            List<Usuario> usuarios = new ArrayList<Usuario>();
+            while (rs.next()) {
+                usuarios.add(monta(rs));
+            }
+
+            rs.close();
+            stmt.close();
+            return usuarios;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -92,6 +104,20 @@ public class UsuarioDao {
 
     public void fechaConexao() throws SQLException {
         connection.close();
+    }
+
+    // cria o Usuario a partir da linha atual do ResultSet (anoFav NULL vira 0)
+    private Usuario monta(ResultSet rs) throws SQLException {
+        Usuario usuario = new Usuario();
+        usuario.setUserID(rs.getInt("userID"));
+        usuario.setPontosTotais(rs.getInt("pontosTotais"));
+        usuario.setNomeReal(rs.getString("nomeReal"));
+        usuario.setNickname(rs.getString("nickname"));
+        usuario.setEmail(rs.getString("email"));
+        usuario.setCidade(rs.getString("cidade"));
+        usuario.setAnoFav(rs.getInt("anoFav"));
+        usuario.setCategoriaFav(rs.getString("categoriaFav"));
+        return usuario;
     }
 
     // anoFav e categoriaFav são opcionais: sem valor, gravam NULL

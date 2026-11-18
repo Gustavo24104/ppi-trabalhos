@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<% request.setCharacterEncoding("UTF-8"); /* antes do jsp:include, para o jsp:param com acento chegar certo */ %>
 <jsp:include page="header.jsp">
     <jsp:param name="tituloPagina" value="Usuário" />
 </jsp:include>
@@ -41,11 +42,12 @@
             <p>
                 <label for="anoFav">Ano favorito:</label>
                 <input type="number" id="anoFav" name="anoFav" min="1901" placeholder="Ex.: 1958">
+                <label class="apagar"><input type="checkbox" name="limpar" value="anoFav"> apagar valor salvo</label>
             </p>
             <p>
                 <label for="categoriaFav">Categoria favorita:</label>
                 <select id="categoriaFav" name="categoriaFav">
-                    <option value="">(nenhuma)</option>
+                    <option value="">(em branco)</option>
                     <option value="historia">História</option>
                     <option value="cinema">Cinema</option>
                     <option value="literatura">Literatura</option>
@@ -53,15 +55,19 @@
                     <option value="ciencias">Ciências</option>
                     <option value="esportes">Esportes</option>
                 </select>
+                <label class="apagar"><input type="checkbox" name="limpar" value="categoriaFav"> apagar valor salvo</label>
             </p>
         </fieldset>
 
-        <p>Cadastrar e alterar usam todos os campos, menos ano e categoria favoritos, que são opcionais. Consultar e remover usam só o ID.</p>
+        <p>Cadastrar usa todos os campos, menos ano e categoria favoritos, que são opcionais. Consultar e remover usam só o ID.
+            Para alterar, informe o ID e apenas os campos que quiser mudar (campo em branco mantém o valor salvo).
+            Só o ano e a categoria favoritos podem ficar vazios no banco: para isso, marque "apagar valor salvo".</p>
 
         <button type="submit" name="acao" value="cadastrar">Cadastrar</button>
         <button type="submit" name="acao" value="alterar">Alterar</button>
         <button type="submit" name="acao" value="consultar">Consultar</button>
         <button type="submit" name="acao" value="remover">Remover</button>
+        <button type="submit" name="acao" value="listar" formnovalidate>Listar todos</button>
         <button type="reset">Limpar</button>
     </form>
 </main>

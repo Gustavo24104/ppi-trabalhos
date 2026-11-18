@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<% request.setCharacterEncoding("UTF-8"); /* antes do jsp:include, para o jsp:param com acento chegar certo */ %>
 <jsp:include page="header.jsp">
     <jsp:param name="tituloPagina" value="Painel Principal" />
 </jsp:include>
