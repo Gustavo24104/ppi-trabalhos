@@ -79,9 +79,9 @@
 
     <%
         UsuarioDao usuarioDao = new UsuarioDao();
-        UsuarioArquivoDao arquivoDao = new UsuarioArquivoDao();
+        UploadDao arquivoDao = new UploadDao();
         List<Usuario> usuarios = null;
-        Map<Integer, UsuarioArquivo> arquivosPerfil = null;
+        Map<Integer, Upload> arquivosPerfil = null;
         try {
             usuarios = usuarioDao.getLista();
             arquivosPerfil = arquivoDao.mapaPorContexto("perfil");
@@ -107,7 +107,7 @@
                 <tbody>
                 <% if (usuarios != null && !usuarios.isEmpty()) {
                     for (Usuario u : usuarios) {
-                        UsuarioArquivo arq = arquivosPerfil.get(u.getUserID());
+                        Upload arq = arquivosPerfil.get(u.getUserID());
                 %>
                     <tr>
                         <td><%= u.getUserID() %></td>

@@ -30,10 +30,10 @@
         }
 
         UsuarioDao uDao = new UsuarioDao();
-        UsuarioArquivoDao arqDao = new UsuarioArquivoDao();
+        UploadDao arqDao = new UploadDao();
         List<Usuario> usuarios = null;
-        Map<Integer, UsuarioArquivo> mapaPerfil = null;
-        Map<Integer, UsuarioArquivo> mapaPartida = null;
+        Map<Integer, Upload> mapaPerfil = null;
+        Map<Integer, Upload> mapaPartida = null;
         try {
             usuarios = uDao.getLista();
             mapaPerfil = arqDao.mapaPorContexto("perfil");
@@ -119,8 +119,8 @@
             <tbody>
             <% if (usuarios != null && !usuarios.isEmpty()) {
                 for (Usuario u : usuarios) {
-                    UsuarioArquivo p = mapaPerfil.get(u.getUserID());
-                    UsuarioArquivo g = mapaPartida.get(u.getUserID());
+                    Upload p = mapaPerfil.get(u.getUserID());
+                    Upload g = mapaPartida.get(u.getUserID());
             %>
                 <tr>
                     <td><%= u.getUserID() %></td>

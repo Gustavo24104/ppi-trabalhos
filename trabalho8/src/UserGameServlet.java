@@ -15,12 +15,12 @@ import java.util.Map;
 public class UserGameServlet extends HttpServlet {
 
     private UserGameDao dao;
-    private UsuarioArquivoDao arquivoDao;
+    private UploadDao arquivoDao;
 
     @Override
     public void init() {
         dao = new UserGameDao();
-        arquivoDao = new UsuarioArquivoDao();
+        arquivoDao = new UploadDao();
     }
 
     @Override
@@ -33,7 +33,7 @@ public class UserGameServlet extends HttpServlet {
         try {
             arquivoDao.fechaConexao();
         } catch (Exception e) {
-            log("Erro ao fechar a conexao de UsuarioArquivoDao", e);
+            log("Erro ao fechar a conexao de UploadDao", e);
         }
     }
 
@@ -56,7 +56,7 @@ public class UserGameServlet extends HttpServlet {
         try {
             if ("listar".equals(acao)) {
                 lista = new ArrayList<>();
-                Map<Integer, UsuarioArquivo> mapaPartida = arquivoDao.mapaPorContexto("partida");
+                Map<Integer, Upload> mapaPartida = arquivoDao.mapaPorContexto("partida");
                 for (UserGame userGame : dao.getLista()) {
                     lista.add(detalhesDe(userGame, mapaPartida.get(userGame.getUserID())));
                 }
@@ -82,7 +82,7 @@ public class UserGameServlet extends HttpServlet {
                     if (dao.altera(userGame)) {
                         sucesso = true;
                         mensagem = "Partida alterada com sucesso!";
-                        UsuarioArquivo screenshot = arquivoDao.buscaPorUsuarioEContexto(userGame.getUserID(), "partida");
+                        Upload screenshot = arquivoDao.buscaPorUsuarioEContexto(userGame.getUserID(), "partida");
                         detalhes = detalhesDe(userGame, screenshot);
                     } else {
                         mensagem = "Nenhuma partida encontrada para esse usuário e ano.";
@@ -95,7 +95,7 @@ public class UserGameServlet extends HttpServlet {
                 } else {
                     sucesso = true;
                     mensagem = "Partida encontrada com sucesso!";
-                    UsuarioArquivo screenshot = arquivoDao.buscaPorUsuarioEContexto(userGame.getUserID(), "partida");
+                    Upload screenshot = arquivoDao.buscaPorUsuarioEContexto(userGame.getUserID(), "partida");
                     detalhes = detalhesDe(userGame, screenshot);
                 }
             } else if ("remover".equals(acao)) {
@@ -125,7 +125,7 @@ public class UserGameServlet extends HttpServlet {
     }
 
     // campos da partida para a tabela da página de sucesso
-    private static Map<String, String> detalhesDe(UserGame userGame, UsuarioArquivo screenshot) {
+    private static Map<String, String> detalhesDe(UserGame userGame, Upload screenshot) {
         Map<String, String> d = new LinkedHashMap<>();
         d.put("ID do usuário", String.valueOf(userGame.getUserID()));
         d.put("Ano", String.valueOf(userGame.getAno()));

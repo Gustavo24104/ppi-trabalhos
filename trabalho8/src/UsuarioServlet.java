@@ -15,12 +15,12 @@ import java.util.Map;
 public class UsuarioServlet extends HttpServlet {
 
     private UsuarioDao dao;
-    private UsuarioArquivoDao arquivoDao;
+    private UploadDao arquivoDao;
 
     @Override
     public void init() {
         dao = new UsuarioDao();
-        arquivoDao = new UsuarioArquivoDao();
+        arquivoDao = new UploadDao();
     }
 
     @Override
@@ -33,7 +33,7 @@ public class UsuarioServlet extends HttpServlet {
         try {
             arquivoDao.fechaConexao();
         } catch (Exception e) {
-            log("Erro ao fechar a conexao de UsuarioArquivoDao", e);
+            log("Erro ao fechar a conexao de UploadDao", e);
         }
     }
 
@@ -120,7 +120,7 @@ public class UsuarioServlet extends HttpServlet {
                     } else if (dao.altera(usuario)) {
                         sucesso = true;
                         mensagem = "Usuário alterado com sucesso!";
-                        UsuarioArquivo fotoPerfil = arquivoDao.buscaPorUsuarioEContexto(usuario.getUserID(), "perfil");
+                        Upload fotoPerfil = arquivoDao.buscaPorUsuarioEContexto(usuario.getUserID(), "perfil");
                         detalhes = detalhesDe(usuario, fotoPerfil);
                     } else {
                         mensagem = "Nenhum usuário encontrado com esse ID.";
@@ -133,7 +133,7 @@ public class UsuarioServlet extends HttpServlet {
                 } else {
                     sucesso = true;
                     mensagem = "Usuário encontrado com sucesso!";
-                    UsuarioArquivo fotoPerfil = arquivoDao.buscaPorUsuarioEContexto(usuario.getUserID(), "perfil");
+                    Upload fotoPerfil = arquivoDao.buscaPorUsuarioEContexto(usuario.getUserID(), "perfil");
                     detalhes = detalhesDe(usuario, fotoPerfil);
                 }
             } else if ("remover".equals(acao)) {
@@ -145,7 +145,7 @@ public class UsuarioServlet extends HttpServlet {
                 }
             } else if ("listar".equals(acao)) {
                 lista = new ArrayList<>();
-                Map<Integer, UsuarioArquivo> mapaPerfil = arquivoDao.mapaPorContexto("perfil");
+                Map<Integer, Upload> mapaPerfil = arquivoDao.mapaPorContexto("perfil");
                 for (Usuario usuario : dao.getLista()) {
                     lista.add(detalhesDe(usuario, mapaPerfil.get(usuario.getUserID())));
                 }
@@ -173,7 +173,7 @@ public class UsuarioServlet extends HttpServlet {
     }
 
     // campos do usuário para a tabela da página de sucesso
-    private static Map<String, String> detalhesDe(Usuario usuario, UsuarioArquivo fotoPerfil) {
+    private static Map<String, String> detalhesDe(Usuario usuario, Upload fotoPerfil) {
         Map<String, String> d = new LinkedHashMap<>();
         d.put("ID", String.valueOf(usuario.getUserID()));
         d.put("Pontos totais", String.valueOf(usuario.getPontosTotais()));

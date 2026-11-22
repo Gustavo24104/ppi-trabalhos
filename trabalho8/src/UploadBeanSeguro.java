@@ -114,7 +114,7 @@ public class UploadBeanSeguro implements Serializable {
         }
 
         UsuarioDao usuarioDao = null;
-        UsuarioArquivoDao arquivoDao = null;
+        UploadDao arquivoDao = null;
 
         try {
             List<FileItem> list = sfu.parseRequest(request);
@@ -145,7 +145,7 @@ public class UploadBeanSeguro implements Serializable {
                 return false;
             }
 
-            arquivoDao = new UsuarioArquivoDao();
+            arquivoDao = new UploadDao();
             int enviados = 0;
 
             for (FileItem item : list) {
@@ -196,7 +196,7 @@ public class UploadBeanSeguro implements Serializable {
                     File destino = new File(pastaContexto, nomeSalvo);
                     item.write(destino);
 
-                    UsuarioArquivo registro = new UsuarioArquivo();
+                    Upload registro = new Upload();
                     registro.setUserID(this.userID);
                     registro.setContexto(contexto);
                     registro.setNomeOriginal(nomeOriginal);

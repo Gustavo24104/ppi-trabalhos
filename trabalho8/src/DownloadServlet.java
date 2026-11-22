@@ -38,8 +38,8 @@ public class DownloadServlet extends HttpServlet {
                 ? "foto de perfil"
                 : "screenshot do desempenho no jogo";
 
-        UsuarioArquivoDao dao = new UsuarioArquivoDao();
-        UsuarioArquivo arquivo;
+        UploadDao dao = new UploadDao();
+        Upload arquivo;
         try {
             arquivo = dao.buscaPorUsuarioEContexto(userID, contexto);
         } finally {
