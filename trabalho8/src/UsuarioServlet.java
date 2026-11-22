@@ -51,7 +51,7 @@ public class UsuarioServlet extends HttpServlet {
         boolean sucesso = false;
         String mensagem;
         Map<String, String> detalhes = new LinkedHashMap<>();
-        List> lista = null;
+        List<Map<String, String>> lista = null;
 
         try {
             if ("cadastrar".equals(acao)) {

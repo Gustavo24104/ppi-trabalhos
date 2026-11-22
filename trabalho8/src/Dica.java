@@ -1,3 +1,5 @@
+package yeardle;
+
 public class Dica {
     private int dicaID;
     private String textoDica;

@@ -48,6 +48,9 @@ CREATE TABLE IF NOT EXISTS upload (
   FOREIGN KEY (userID) REFERENCES users(userID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+
+
+
 -- dados de teste, exigidos pelas chaves estrangeiras
 INSERT IGNORE INTO jogo (ano, categoria) VALUES (1958, 'esportes');
 INSERT IGNORE INTO users (pontosTotais, nomeReal, nickname, email, cidade, anoFav, categoriaFav)

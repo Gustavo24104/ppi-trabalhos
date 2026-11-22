@@ -1,0 +1,72 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-jni.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-io-2.22.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-io-2.22.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-core-2.0.0-M5-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/catalina-tribes.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-util-scan.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-websocket.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-jakarta-servlet6-2.0.0-M5-tests.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-portlet-2.0.0-M5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-jakarta-servlet5-2.0.0-M5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-javax-2.0.0-M5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-io-2.22.0-test-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-io-2.22.0-tests.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/mysql-connector-j-9.7.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-javax-2.0.0-M5-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-jakarta-servlet6-2.0.0-M5-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-core-2.0.0-M5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-i18n-ru.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/catalina-ssi.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-i18n-fr.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-core-2.0.0-M5-test-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-coyote.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-jakarta-servlet6-2.0.0-M5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/el-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-i18n-de.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/ecj.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-javax-2.0.0-M5-tests.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-i18n-cs.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-i18n-pt-BR.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-jakarta-servlet6-2.0.0-M5-test-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-jakarta-servlet6-2.0.0-M5-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-core-2.0.0-M5-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-javax-2.0.0-M5-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-io-2.22.0-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-util.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-jakarta-servlet5-2.0.0-M5-tests.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-javax-2.0.0-M5-test-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-dbcp.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-i18n-ko.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/catalina-storeconfig.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/jsp-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/catalina-ha.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/servlet-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-jdbc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-jakarta-servlet5-2.0.0-M5-test-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/jasper-el.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-i18n-es.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-portlet-2.0.0-M5-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/jasper.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-portlet-2.0.0-M5-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-portlet-2.0.0-M5-test-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/annotations-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/catalina-ant.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-portlet-2.0.0-M5-tests.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/websocket-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-core-2.0.0-M5-tests.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-i18n-zh-CN.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-jakarta-servlet5-2.0.0-M5-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/commons-fileupload2-jakarta-servlet5-2.0.0-M5-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-coyote-ffm.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/catalina.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/tomcat-i18n-ja.jar!/" />
+      <root url="jar://$PROJECT_DIR$/web/WEB-INF/lib/jaspic-api.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

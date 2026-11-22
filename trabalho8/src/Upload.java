@@ -1,3 +1,5 @@
+package yeardle;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 

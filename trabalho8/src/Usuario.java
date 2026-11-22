@@ -1,3 +1,5 @@
+package yeardle;
+
 public class Usuario {
     private int userID;
     private int pontosTotais;

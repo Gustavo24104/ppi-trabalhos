@@ -1,5 +1,6 @@
 // assume que o banco de dados ja existe
 // codigo pra criar o BD:
+package yeardle;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

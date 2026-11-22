@@ -1,3 +1,5 @@
+package yeardle;
+
 public class UserGame {
     private int userID;
     private int ano;
