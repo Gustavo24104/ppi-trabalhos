@@ -12,8 +12,8 @@ if [ "$1" = "stop" ]; then
     exit 0
 fi
 
-# monta a aplicacao em webapps/trabalho7 (jsp + classes + driver do mysql)
-APP=$TOMCAT/webapps/trabalho7
+# monta a aplicacao em webapps/trabalho8 (jsp + classes + driver do mysql)
+APP=$TOMCAT/webapps/trabalho8
 rm -rf "$APP"
 mkdir -p "$APP/WEB-INF/classes"
 cp web/*.jsp "$APP/"
@@ -22,9 +22,10 @@ cp -r web/WEB-INF/lib "$APP/WEB-INF/"
 javac -encoding UTF-8 -d "$APP/WEB-INF/classes" -cp "$TOMCAT/lib/*:$APP/WEB-INF/lib/*" src/*.java
 
 "$TOMCAT/bin/startup.sh"
-echo "Acesse: http://localhost:8080/trabalho7/index.jsp"
-echo "        http://localhost:8080/trabalho7/usuario.jsp"
-echo "        http://localhost:8080/trabalho7/jogo.jsp"
-echo "        http://localhost:8080/trabalho7/dica.jsp"
-echo "        http://localhost:8080/trabalho7/usergame.jsp"
+echo "Acesse: http://localhost:8080/trabalho8/index.jsp"
+echo "        http://localhost:8080/trabalho8/usuario.jsp"
+echo "        http://localhost:8080/trabalho8/jogo.jsp"
+echo "        http://localhost:8080/trabalho8/dica.jsp"
+echo "        http://localhost:8080/trabalho8/usergame.jsp"
+echo "        http://localhost:8080/trabalho8/upload.jsp"
 echo "Logs:   tail -f $TOMCAT/logs/catalina.out"

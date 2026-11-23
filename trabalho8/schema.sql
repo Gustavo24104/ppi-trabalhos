@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS userGame (
   FOREIGN KEY (ano) REFERENCES jogo(ano) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
---dados dos arquivos de imagens (foto de perfil e placar) enviados pelo usuário
+-- dados dos arquivos de imagens (foto de perfil e placar) enviados pelo usuário
 CREATE TABLE IF NOT EXISTS upload (
   arquivoID INT PRIMARY KEY AUTO_INCREMENT,
   userID INT NOT NULL,
