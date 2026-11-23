@@ -19,7 +19,7 @@ mkdir -p "$APP/WEB-INF/classes"
 cp web/*.jsp "$APP/"
 cp -r web/WEB-INF/lib "$APP/WEB-INF/"
 #javac -encoding UTF-8 -d "$APP/WEB-INF/classes" -cp "$TOMCAT/lib/servlet-api.jar" src/*.java
-javac -encoding UTF-8 -d "$APP/WEB-INF/classes" -cp "$TOMCAT/lib/*:$APP/WEB-INF/lib/*" src/*.java
+javac -encoding UTF-8 -d "$APP/WEB-INF/classes" -cp "$TOMCAT/lib/*:$APP/WEB-INF/lib/*" src/yeardle/*.java
 
 "$TOMCAT/bin/startup.sh"
 echo "Acesse: http://localhost:8080/trabalho8/index.jsp"
