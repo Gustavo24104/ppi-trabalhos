@@ -81,11 +81,16 @@ public class GameServelet extends HttpServlet {
         tentativas++;
         session.setAttribute("tentativas", tentativas);
 
+
+        // TODO: melhorar logica (adicionar usuario à sessao eu acho e evitar o cara de jogar dnv)
         if (guess == jogoAtual.getAno()) {
-//            session.removeAttribute("tentativas");
-//            session.removeAttribute("jogoAtual");
+            session.setAttribute("pontuacao", 60000 - 10000 * (Integer) session.getAttribute("dicasReveladas"));
+
+            session.removeAttribute("tentativas");
+            session.removeAttribute("jogoAtual");
             session.removeAttribute("dicasReveladas");
-            resp.sendRedirect("sucessoGame.jsp");
+
+            resp.sendRedirect("ganhou.jsp");
             return;
         }
 
@@ -98,6 +103,11 @@ public class GameServelet extends HttpServlet {
             resp.sendRedirect("perdeu.jsp");
             return;
         }
+
+        int atual = ((Integer) session.getAttribute("dicasReveladas") != null) ?
+                (Integer) session.getAttribute("dicasReveladas") : 0;
+
+        session.setAttribute("dicasReveladas", atual + 1);
         resp.sendRedirect("jogar");
     }
 

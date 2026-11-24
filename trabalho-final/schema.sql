@@ -7,13 +7,13 @@ USE yeardle;
 CREATE TABLE IF NOT EXISTS jogo (
   ano INT PRIMARY KEY CHECK (ano > 1900),
   dataJogada DATE,
-  categoria ENUM('historia','cinema','literatura','musica','ciencias','esportes')
 );
 
 CREATE TABLE IF NOT EXISTS dica (
   dicaID INT PRIMARY KEY AUTO_INCREMENT,
   textoDica TEXT NOT NULL,
   anoDica INT,
+  categoria ENUM('historia','cinema','literatura','musica','ciencias','esportes'),
   FOREIGN KEY (anoDica) REFERENCES jogo(ano) ON DELETE CASCADE ON UPDATE RESTRICT
 );
 
