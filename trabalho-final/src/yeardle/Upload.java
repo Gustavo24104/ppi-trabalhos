@@ -8,6 +8,7 @@ public class Upload implements Serializable {
 
     private int arquivoID;
     private int userID;
+    private int ano;
     private String contexto;
     private String nomeOriginal;
     private String nomeSalvo;
@@ -80,5 +81,13 @@ public class Upload implements Serializable {
 
     public void setDataUpload(Timestamp dataUpload) {
         this.dataUpload = dataUpload;
+    }
+
+    public int getAno() {
+        return ano;
+    }
+
+    public void setAno(int ano) {
+        this.ano = ano;
     }
 }

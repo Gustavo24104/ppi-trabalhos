@@ -32,14 +32,16 @@ CREATE TABLE IF NOT EXISTS users (
 -- dados dos arquivos de imagens (foto de perfil e placar) enviados pelo usuário
 CREATE TABLE IF NOT EXISTS upload (
   arquivoID INT PRIMARY KEY AUTO_INCREMENT,
-  userID INT NOT NULL,
-  contexto ENUM('perfil', 'partida') NOT NULL,
+  userID INT NULL,
+  ano INT NULL,
+  contexto ENUM('perfil', 'partida', 'jogo') NOT NULL,
   nomeOriginal VARCHAR(255) NOT NULL,
   nomeSalvo VARCHAR(255) NOT NULL,
   tipoConteudo VARCHAR(100),
   tamanhoBytes BIGINT NOT NULL,
   dataUpload TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (userID) REFERENCES users(userID) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (userID) REFERENCES users(userID) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (ano) REFERENCES jogo(ano) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS userGame (

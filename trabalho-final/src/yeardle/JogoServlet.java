@@ -17,10 +17,12 @@ import java.util.Map;
 public class JogoServlet extends HttpServlet {
 
     private JogoDao dao;
+    private UploadDao arquivoDao;
 
     @Override
     public void init() {
         dao = new JogoDao();
+        arquivoDao = new UploadDao();
     }
 
     @Override
@@ -28,7 +30,12 @@ public class JogoServlet extends HttpServlet {
         try {
             dao.fechaConexao();
         } catch (Exception e) {
-            log("Erro ao fechar a conexao", e);
+            log("Erro ao fechar a conexao de JogoDao", e);
+        }
+        try {
+            arquivoDao.fechaConexao();
+        } catch (Exception e) {
+            log("Erro ao fechar a conexao de UploadDao", e);
         }
     }
 
@@ -72,20 +79,14 @@ public class JogoServlet extends HttpServlet {
                         jogo.setDataJogada(converteData(campos.texto("dataJogada")));
                         mudou = true;
                     }
-//                    if (campos.apagar("categoria", "Categoria")) {
-//                        jogo.setCategoria(null);
-//                        mudou = true;
-//                    } else if (campos.preenchido("categoria")) {
-//                        jogo.setCategoria(campos.texto("categoria"));
-//                        mudou = true;
-//                    }
 
                     if (!mudou) {
                         mensagem = "Nenhuma alteração informada: preencha ao menos um campo ou marque \"apagar valor salvo\".";
                     } else if (dao.altera(jogo)) {
                         sucesso = true;
                         mensagem = "Jogo alterado com sucesso!";
-                        detalhes = detalhesDe(jogo);
+                        Upload fotoJogo = arquivoDao.buscaPorJogo(jogo.getAno());
+                        detalhes = detalhesDe(jogo, fotoJogo);
                     } else {
                         mensagem = "Nenhum jogo encontrado com esse ano.";
                     }
@@ -97,7 +98,8 @@ public class JogoServlet extends HttpServlet {
                 } else {
                     sucesso = true;
                     mensagem = "Jogo encontrado com sucesso!";
-                    detalhes = detalhesDe(jogo);
+                    Upload fotoJogo = arquivoDao.buscaPorJogo(jogo.getAno());
+                    detalhes = detalhesDe(jogo, fotoJogo);
                 }
             } else if ("remover".equals(acao)) {
                 if (dao.remove(campos.inteiro("ano"))) {
@@ -108,8 +110,9 @@ public class JogoServlet extends HttpServlet {
                 }
             } else if ("listar".equals(acao)) {
                 lista = new ArrayList<>();
+                Map<Integer, Upload> mapaJogo = arquivoDao.mapaPorJogo();
                 for (Jogo jogo : dao.getLista()) {
-                    lista.add(detalhesDe(jogo));
+                    lista.add(detalhesDe(jogo, mapaJogo.get(jogo.getAno())));
                 }
                 sucesso = true;
                 mensagem = lista.isEmpty() ? "Nenhum jogo cadastrado." : lista.size() + " jogo(s) cadastrado(s).";
@@ -136,11 +139,11 @@ public class JogoServlet extends HttpServlet {
     }
 
     // campos do jogo para a tabela da página de sucesso
-    private static Map<String, String> detalhesDe(Jogo jogo) {
+    private static Map<String, String> detalhesDe(Jogo jogo, Upload fotoJogo) {
         Map<String, String> d = new LinkedHashMap<>();
         d.put("Ano", String.valueOf(jogo.getAno()));
         d.put("Data jogada", jogo.getDataJogada() == null ? "-" : new Date(jogo.getDataJogada().getTimeInMillis()).toString());
-//        d.put("Categoria", jogo.getCategoria() == null ? "-" : jogo.getCategoria());
+        d.put("Foto marcante (Dica Zero)", fotoJogo != null ? fotoJogo.getNomeOriginal() : "-");
         return d;
     }
 

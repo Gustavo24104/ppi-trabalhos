@@ -20,10 +20,12 @@ public class DownloadServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String userIdParam = req.getParameter("userID");
+        String anoParam = req.getParameter("ano");
         String nameParam = req.getParameter("fileName");
         String contexto = req.getParameter("contexto");
 
-        if ((userIdParam == null && nameParam == null) || (!"perfil".equals(contexto) && !"partida".equals(contexto))) {
+        boolean contextoValido = "perfil".equals(contexto) || "partida".equals(contexto) || "jogo".equals(contexto);
+        if (!contextoValido || (userIdParam == null && anoParam == null && nameParam == null)) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parâmetros de download inválidos.");
             return;
         }
@@ -38,15 +40,27 @@ public class DownloadServlet extends HttpServlet {
             }
         }
 
+        int ano = -1;
+        if (anoParam != null) {
+            try {
+                ano = Integer.parseInt(anoParam);
+            } catch (NumberFormatException e) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Ano inválido.");
+                return;
+            }
+        }
+
         String descricaoContexto = "perfil".equals(contexto)
                 ? "foto de perfil"
-                : "screenshot do desempenho no jogo";
+                : ("partida".equals(contexto) ? "screenshot do desempenho no jogo" : "foto marcante do ano");
 
         UploadDao dao = new UploadDao();
         Upload arquivo;
         try {
-            if(nameParam != null) {
+            if (nameParam != null) {
                 arquivo = dao.buscaPorNome(nameParam, contexto);
+            } else if ("jogo".equals(contexto)) {
+                arquivo = dao.buscaPorJogo(ano);
             } else {
                 arquivo = dao.buscaPorUsuarioEContexto(userID, contexto);
             }

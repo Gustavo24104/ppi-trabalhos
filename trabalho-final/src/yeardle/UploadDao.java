@@ -17,13 +17,17 @@ public class UploadDao {
     // Insere ou substitui o arquivo do usuário no contexto informado;
     // retorna o nomeSalvo anterior caso tenha havido substituição (para limpeza em disco).
     public String salvaOuAtualiza(Upload arq) {
-        Upload existente = buscaPorUsuarioEContexto(arq.getUserID(), arq.getContexto());
+        boolean isJogo = "jogo".equals(arq.getContexto());
+        Upload existente = isJogo
+                ? buscaPorJogo(arq.getAno())
+                : buscaPorUsuarioEContexto(arq.getUserID(), arq.getContexto());
         try {
             if (existente == null) {
-                String sql = "INSERT INTO upload (userID, contexto, nomeOriginal, nomeSalvo, tipoConteudo, tamanhoBytes) "
-                           + "VALUES (?, ?, ?, ?, ?, ?)";
+                String sql = isJogo
+                        ? "INSERT INTO upload (ano, contexto, nomeOriginal, nomeSalvo, tipoConteudo, tamanhoBytes) VALUES (?, ?, ?, ?, ?, ?)"
+                        : "INSERT INTO upload (userID, contexto, nomeOriginal, nomeSalvo, tipoConteudo, tamanhoBytes) VALUES (?, ?, ?, ?, ?, ?)";
                 PreparedStatement stmt = connection.prepareStatement(sql);
-                stmt.setInt(1, arq.getUserID());
+                stmt.setInt(1, isJogo ? arq.getAno() : arq.getUserID());
                 stmt.setString(2, arq.getContexto());
                 stmt.setString(3, arq.getNomeOriginal());
                 stmt.setString(4, arq.getNomeSalvo());
@@ -33,14 +37,15 @@ public class UploadDao {
                 stmt.close();
                 return null;
             } else {
-                String sql = "UPDATE upload SET nomeOriginal=?, nomeSalvo=?, tipoConteudo=?, tamanhoBytes=? "
-                           + "WHERE userID=? AND contexto=?";
+                String sql = isJogo
+                        ? "UPDATE upload SET nomeOriginal=?, nomeSalvo=?, tipoConteudo=?, tamanhoBytes=? WHERE ano=? AND contexto=?"
+                        : "UPDATE upload SET nomeOriginal=?, nomeSalvo=?, tipoConteudo=?, tamanhoBytes=? WHERE userID=? AND contexto=?";
                 PreparedStatement stmt = connection.prepareStatement(sql);
                 stmt.setString(1, arq.getNomeOriginal());
                 stmt.setString(2, arq.getNomeSalvo());
                 stmt.setString(3, arq.getTipoConteudo());
                 stmt.setLong(4, arq.getTamanhoBytes());
-                stmt.setInt(5, arq.getUserID());
+                stmt.setInt(5, isJogo ? arq.getAno() : arq.getUserID());
                 stmt.setString(6, arq.getContexto());
                 stmt.executeUpdate();
                 stmt.close();
@@ -141,6 +146,7 @@ public class UploadDao {
         Upload arq = new Upload();
         arq.setArquivoID(rs.getInt("arquivoID"));
         arq.setUserID(rs.getInt("userID"));
+        arq.setAno(rs.getInt("ano"));
         arq.setContexto(rs.getString("contexto"));
         arq.setNomeOriginal(rs.getString("nomeOriginal"));
         arq.setNomeSalvo(rs.getString("nomeSalvo"));
@@ -148,5 +154,43 @@ public class UploadDao {
         arq.setTamanhoBytes(rs.getLong("tamanhoBytes"));
         arq.setDataUpload(rs.getTimestamp("dataUpload"));
         return arq;
+    }
+
+        public Upload buscaPorJogo(int ano) {
+        String sql = "SELECT * FROM upload WHERE ano=? AND contexto='jogo'";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, ano);
+            ResultSet rs = stmt.executeQuery();
+
+            Upload arq = null;
+            if (rs.next()) {
+                arq = monta(rs);
+            }
+            rs.close();
+            stmt.close();
+            return arq;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Map<Integer, Upload> mapaPorJogo() {
+        String sql = "SELECT * FROM upload WHERE contexto='jogo' AND ano IS NOT NULL ORDER BY ano";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+
+            Map<Integer, Upload> mapa = new HashMap<>();
+            while (rs.next()) {
+                Upload arq = monta(rs);
+                mapa.put(arq.getAno(), arq);
+            }
+            rs.close();
+            stmt.close();
+            return mapa;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
