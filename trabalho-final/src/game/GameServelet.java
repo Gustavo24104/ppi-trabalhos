@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.random.RandomGenerator;
 
+
 @WebServlet("/jogar")
 public class GameServelet extends HttpServlet {
     UserGameDao ugd = new UserGameDao();
@@ -21,12 +22,24 @@ public class GameServelet extends HttpServlet {
     DicaDao dd = new DicaDao();
     Jogo jogoAtual;
     List<Dica> dicasAtuas;
-//    private int tentativas = 0;
     private final int MAX_TENTATIVAS = 5;
 
 //    @Override
     public void init() {
+        getJogoAtual();
+//        tentativas = 1;
+    }
+
+    public void getJogoAtual() {
+        Calendar hoje = Calendar.getInstance();
         jogoAtual = jd.buscaPorDataJogada(Calendar.getInstance());
+        boolean mesmoDia = jogoAtual != null && hoje.get(Calendar.DAY_OF_YEAR) == jogoAtual.getDataJogada().get(Calendar.DAY_OF_YEAR) &&
+                hoje.get(Calendar.YEAR) == jogoAtual.getDataJogada().get(Calendar.YEAR);
+
+        if (mesmoDia && dicasAtuas != null) {
+            return;
+        }
+
         if(jogoAtual == null) {
             List<Jogo> candidatos = jd.getNaoJogados();
             Random rng = new Random();
@@ -36,8 +49,9 @@ public class GameServelet extends HttpServlet {
             jd.altera(jogoAtual);
         }
         dicasAtuas = dd.buscaPorJogo(jogoAtual.getAno());
-//        tentativas = 1;
     }
+
+
 
     @Override
     public void destroy() {
@@ -65,6 +79,19 @@ public class GameServelet extends HttpServlet {
         super.service(req, resp);
     }
 
+    private void salvaPerformance(HttpSession session) {
+        int points = 5000 - 1000 * (Integer) session.getAttribute("dicasReveladas");
+        session.setAttribute("pontuacao", points);
+
+        int userID = (Integer) session.getAttribute("userID");
+        UserGame ug = new UserGame();
+        ug.setAno(jogoAtual.getAno());
+        ug.setPontuacao(points);
+        ug.setUserID(userID);
+
+        ugd.adiciona(ug);
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
@@ -83,8 +110,10 @@ public class GameServelet extends HttpServlet {
 
 
         // TODO: melhorar logica (adicionar usuario à sessao eu acho e evitar o cara de jogar dnv)
-        if (guess == jogoAtual.getAno()) {
-            session.setAttribute("pontuacao", 6000 - 1000 * (Integer) session.getAttribute("dicasReveladas"));
+        if (guess == jogoAtual.getAno()) { // ganhou
+
+            // salva no BD
+            salvaPerformance(session);
 
             session.removeAttribute("tentativas");
             session.removeAttribute("jogoAtual");
@@ -95,6 +124,8 @@ public class GameServelet extends HttpServlet {
         }
 
         if (tentativas >= MAX_TENTATIVAS) {
+            salvaPerformance(session);
+
             session.setAttribute("anoCorreto", jogoAtual.getAno());
             session.removeAttribute("tentativas");
             session.removeAttribute("jogoAtual");
@@ -113,13 +144,35 @@ public class GameServelet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        getJogoAtual();
         HttpSession session = req.getSession();
-
         // Inicializa a partida na sessão se ainda não existir
         if (session.getAttribute("jogoAtual") == null) {
             session.setAttribute("jogoAtual", jogoAtual);
             session.setAttribute("dicasReveladas", 1);
             session.setAttribute("tentativas", 0);
+        }
+
+        if (session.getAttribute("userID") == null) { // user 1 por padrao (para testes)
+            session.setAttribute("userdID", 1);
+        }
+
+        // se ja jogou (ent ta no leaderboard)
+        Integer i = (Integer) session.getAttribute("userID");
+        UserGame encontrado = i != null ? ugd.busca(i, jogoAtual.getAno()) : null;
+        if(encontrado != null) {
+            // entao nao joga denovo
+            session.setAttribute("pontuacao", encontrado.getPontuacao());
+            session.removeAttribute("tentativas");
+            session.removeAttribute("jogoAtual");
+            session.removeAttribute("dicasReveladas");
+
+            if(encontrado.getPontuacao() != 0) {
+                resp.sendRedirect("ganhou.jsp");
+            } else {
+                resp.sendRedirect("perdeu.jsp");
+            }
+            return;
         }
 
         req.getRequestDispatcher("game.jsp").forward(req, resp);

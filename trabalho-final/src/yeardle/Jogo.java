@@ -22,4 +22,10 @@ public class Jogo {
     public void setDataJogada(Calendar dataJogada) {
         this.dataJogada = dataJogada;
     }
+
+    public boolean equals(Jogo outro) {
+        return outro.ano == this.ano &&
+                outro.getDataJogada().equals(this.getDataJogada()) &&
+                outro.categoria.equals(this.categoria);
+    }
 }
