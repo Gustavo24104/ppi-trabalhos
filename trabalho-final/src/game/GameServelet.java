@@ -31,11 +31,15 @@ public class GameServelet extends HttpServlet {
     }
 
     public void getJogoAtual() {
-        jogoAtual = jd.buscaPorDataJogada(Calendar.getInstance());
         Calendar hoje = Calendar.getInstance();
-        boolean mesmoDia = hoje.get(Calendar.DAY_OF_YEAR) == jogoAtual.getDataJogada().get(Calendar.DAY_OF_YEAR) &&
+        boolean mesmoDia = jogoAtual != null && hoje.get(Calendar.DAY_OF_YEAR) == jogoAtual.getDataJogada().get(Calendar.DAY_OF_YEAR) &&
                 hoje.get(Calendar.YEAR) == jogoAtual.getDataJogada().get(Calendar.YEAR);
 
+        if (mesmoDia && dicasAtuas != null) {
+            return;
+        }
+
+        jogoAtual = jd.buscaPorDataJogada(Calendar.getInstance());
         if(jogoAtual == null || !mesmoDia) {
             List<Jogo> candidatos = jd.getNaoJogados();
             Random rng = new Random();
@@ -46,6 +50,8 @@ public class GameServelet extends HttpServlet {
         }
         dicasAtuas = dd.buscaPorJogo(jogoAtual.getAno());
     }
+
+
 
     @Override
     public void destroy() {
