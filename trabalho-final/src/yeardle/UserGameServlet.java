@@ -15,10 +15,10 @@ public class UserGameServlet extends HttpServlet {
     private UploadDao arquivoDao;
 
     @Override
-    public void init() {
-        dao = new UserGameDao();
-        arquivoDao = new UploadDao();
-    }
+        public void init() {
+            dao = new UserGameDao();
+            arquivoDao = new UploadDao();
+        }
 
     @Override
     public void destroy() {

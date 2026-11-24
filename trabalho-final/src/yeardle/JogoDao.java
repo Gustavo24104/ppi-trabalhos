@@ -53,9 +53,48 @@ public class JogoDao {
         }
     }
 
+    // teoricamente devia ser único...
+    public Jogo buscaPorDataJogada(Calendar data) {
+        try {
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM jogo WHERE dataJogada=?");
+            stmt.setDate(1, converteData(data));
+            ResultSet rs = stmt.executeQuery();
+
+            Jogo jogo = null;
+            if (rs.next()) {
+                jogo = monta(rs);
+            }
+            rs.close();
+            stmt.close();
+            return jogo;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
     public List<Jogo> getLista() {
         try {
             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM jogo ORDER BY ano");
+            ResultSet rs = stmt.executeQuery();
+
+            List<Jogo> jogos = new ArrayList<Jogo>();
+            while (rs.next()) {
+                jogos.add(monta(rs));
+            }
+
+            rs.close();
+            stmt.close();
+            return jogos;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Jogo> getNaoJogados() {
+        try {
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM jogo WHERE dataJogada is NULL");
             ResultSet rs = stmt.executeQuery();
 
             List<Jogo> jogos = new ArrayList<Jogo>();

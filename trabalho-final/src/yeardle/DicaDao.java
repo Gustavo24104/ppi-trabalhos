@@ -61,6 +61,34 @@ public class DicaDao {
         }
     }
 
+    public List<Dica> buscaPorJogo(int ano) {
+        try {
+            PreparedStatement stmt = this.connection.prepareStatement("SELECT * FROM dica WHERE anoDica=?");
+            stmt.setInt(1, ano);
+            ResultSet rs = stmt.executeQuery();
+
+            List<Dica> dicas = new ArrayList<Dica>();
+
+            while (rs.next()) {
+                // criando o objeto Dica
+                Dica dica = new Dica();
+                dica.setDicaID(rs.getInt("dicaID"));
+                dica.setTextoDica(rs.getString("textoDica"));
+                dica.setAnoDica(rs.getInt("anoDica"));
+
+                // adicionando o objeto à lista
+                dicas.add(dica);
+            }
+
+            rs.close();
+            stmt.close();
+
+            return dicas;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public List<Dica> getLista() {
         try {
             PreparedStatement stmt = this.connection.prepareStatement("SELECT * FROM dica ORDER BY dicaID");
