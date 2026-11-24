@@ -6,7 +6,7 @@ USE yeardle;
 
 CREATE TABLE IF NOT EXISTS jogo (
   ano INT PRIMARY KEY CHECK (ano > 1900),
-  dataJogada DATE,
+  dataJogada DATE
 );
 
 CREATE TABLE IF NOT EXISTS dica (
@@ -57,6 +57,6 @@ CREATE TABLE IF NOT EXISTS userGame (
 
 
 -- dados de teste, exigidos pelas chaves estrangeiras
-INSERT IGNORE INTO jogo (ano, categoria) VALUES (1958, 'esportes');
+INSERT IGNORE INTO jogo (ano) VALUES (1958);
 INSERT IGNORE INTO users (pontosTotais, nomeReal, nickname, email, cidade, anoFav, categoriaFav)
   VALUES (0, 'Joao da Silva', 'joaozinho', 'joao@gmail.com', 'Belo Horizonte', 1958, 'esportes');

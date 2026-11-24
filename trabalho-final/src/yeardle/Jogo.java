@@ -22,12 +22,4 @@ public class Jogo {
     public void setDataJogada(Calendar dataJogada) {
         this.dataJogada = dataJogada;
     }
-
-    public String getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
-    }
 }

@@ -15,7 +15,7 @@ public class JogoDao {
     }
 
     public void adiciona(Jogo jogo) {
-        String sql = "INSERT INTO jogo (ano, dataJogada, categoria) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO jogo (ano, dataJogada) VALUES (?, ?)";
 
         try {
             // prepared statement para inserção
@@ -24,7 +24,6 @@ public class JogoDao {
             // seta os valores
             stmt.setInt(1, jogo.getAno());
             stmt.setDate(2, converteData(jogo.getDataJogada()));
-            stmt.setString(3, jogo.getCategoria());
 
             // executa
             stmt.execute();
@@ -112,13 +111,12 @@ public class JogoDao {
 
     // retorna true se algum registro foi alterado
     public boolean altera(Jogo jogo) {
-        String sql = "UPDATE jogo SET dataJogada=?, categoria=? WHERE ano=?";
+        String sql = "UPDATE jogo SET dataJogada=? WHERE ano=?";
 
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setDate(1, converteData(jogo.getDataJogada()));
-            stmt.setString(2, jogo.getCategoria());
-            stmt.setInt(3, jogo.getAno());
+            stmt.setInt(2, jogo.getAno());
             int linhas = stmt.executeUpdate();
             stmt.close();
             return linhas > 0;
@@ -148,7 +146,6 @@ public class JogoDao {
     private Jogo monta(ResultSet rs) throws SQLException {
         Jogo jogo = new Jogo();
         jogo.setAno(rs.getInt("ano"));
-        jogo.setCategoria(rs.getString("categoria"));
 
         // montando a data através do Calendar
         if (rs.getDate("dataJogada") != null) {

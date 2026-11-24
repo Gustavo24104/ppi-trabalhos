@@ -84,7 +84,7 @@ public class GameServelet extends HttpServlet {
 
         // TODO: melhorar logica (adicionar usuario à sessao eu acho e evitar o cara de jogar dnv)
         if (guess == jogoAtual.getAno()) {
-            session.setAttribute("pontuacao", 60000 - 10000 * (Integer) session.getAttribute("dicasReveladas"));
+            session.setAttribute("pontuacao", 6000 - 1000 * (Integer) session.getAttribute("dicasReveladas"));
 
             session.removeAttribute("tentativas");
             session.removeAttribute("jogoAtual");

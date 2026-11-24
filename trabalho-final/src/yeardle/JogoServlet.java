@@ -52,7 +52,6 @@ public class JogoServlet extends HttpServlet {
             if ("cadastrar".equals(acao)) {
                 Jogo jogo = new Jogo();
                 jogo.setAno(campos.inteiro("ano"));
-                jogo.setCategoria(campos.preenchido("categoria") ? campos.texto("categoria") : null);
                 if (campos.preenchido("dataJogada")) {
                     jogo.setDataJogada(converteData(campos.texto("dataJogada")));
                 }
@@ -73,13 +72,13 @@ public class JogoServlet extends HttpServlet {
                         jogo.setDataJogada(converteData(campos.texto("dataJogada")));
                         mudou = true;
                     }
-                    if (campos.apagar("categoria", "Categoria")) {
-                        jogo.setCategoria(null);
-                        mudou = true;
-                    } else if (campos.preenchido("categoria")) {
-                        jogo.setCategoria(campos.texto("categoria"));
-                        mudou = true;
-                    }
+//                    if (campos.apagar("categoria", "Categoria")) {
+//                        jogo.setCategoria(null);
+//                        mudou = true;
+//                    } else if (campos.preenchido("categoria")) {
+//                        jogo.setCategoria(campos.texto("categoria"));
+//                        mudou = true;
+//                    }
 
                     if (!mudou) {
                         mensagem = "Nenhuma alteração informada: preencha ao menos um campo ou marque \"apagar valor salvo\".";
@@ -141,7 +140,7 @@ public class JogoServlet extends HttpServlet {
         Map<String, String> d = new LinkedHashMap<>();
         d.put("Ano", String.valueOf(jogo.getAno()));
         d.put("Data jogada", jogo.getDataJogada() == null ? "-" : new Date(jogo.getDataJogada().getTimeInMillis()).toString());
-        d.put("Categoria", jogo.getCategoria() == null ? "-" : jogo.getCategoria());
+//        d.put("Categoria", jogo.getCategoria() == null ? "-" : jogo.getCategoria());
         return d;
     }
 

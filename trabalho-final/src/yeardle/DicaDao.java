@@ -17,18 +17,19 @@ public class DicaDao {
         // dicaID <= 0: deixa o AUTO_INCREMENT gerar o valor
         boolean semId = dica.getDicaID() <= 0;
         String sql = semId
-                ? "INSERT INTO dica (textoDica, anoDica) VALUES (?, ?)"
-                : "INSERT INTO dica (textoDica, anoDica, dicaID) VALUES (?, ?, ?)";
+                ? "INSERT INTO dica (categoria, textoDica, anoDica) VALUES (?, ?, ?)"
+                : "INSERT INTO dica (categoria, textoDica, anoDica, dicaID) VALUES (?, ?, ?, ?)";
 
         try {
             // prepared statement para inserção
             PreparedStatement stmt = connection.prepareStatement(sql);
 
             // seta os valores
-            stmt.setString(1, dica.getTextoDica());
-            setAno(stmt, 2, dica.getAnoDica());
+            stmt.setString(1, dica.getCategoria());
+            stmt.setString(2, dica.getTextoDica());
+            setAno(stmt, 3, dica.getAnoDica());
             if (!semId) {
-                stmt.setInt(3, dica.getDicaID());
+                stmt.setInt(4, dica.getDicaID());
             }
 
             // executa
@@ -51,6 +52,7 @@ public class DicaDao {
                 dica.setDicaID(rs.getInt("dicaID"));
                 dica.setTextoDica(rs.getString("textoDica"));
                 dica.setAnoDica(rs.getInt("anoDica"));
+                dica.setCategoria(rs.getString("categoria"));
             }
 
             rs.close();
@@ -75,6 +77,7 @@ public class DicaDao {
                 dica.setDicaID(rs.getInt("dicaID"));
                 dica.setTextoDica(rs.getString("textoDica"));
                 dica.setAnoDica(rs.getInt("anoDica"));
+                dica.setCategoria(rs.getString("categoria"));
 
                 // adicionando o objeto à lista
                 dicas.add(dica);
@@ -102,6 +105,7 @@ public class DicaDao {
                 dica.setDicaID(rs.getInt("dicaID"));
                 dica.setTextoDica(rs.getString("textoDica"));
                 dica.setAnoDica(rs.getInt("anoDica"));
+                dica.setCategoria(rs.getString("categoria"));
 
                 // adicionando o objeto à lista
                 dicas.add(dica);
@@ -118,13 +122,14 @@ public class DicaDao {
 
     // retorna true se algum registro foi alterado
     public boolean altera(Dica dica) {
-        String sql = "UPDATE dica SET textoDica=?, anoDica=? WHERE dicaID=?";
+        String sql = "UPDATE dica SET categoria=?, textoDica=?, anoDica=? WHERE dicaID=?";
 
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, dica.getTextoDica());
-            setAno(stmt, 2, dica.getAnoDica());
-            stmt.setInt(3, dica.getDicaID());
+            stmt.setString(1, dica.getCategoria());
+            stmt.setString(2, dica.getTextoDica());
+            setAno(stmt, 3, dica.getAnoDica());
+            stmt.setInt(4, dica.getDicaID());
             int linhas = stmt.executeUpdate();
             stmt.close();
             return linhas > 0;
@@ -146,7 +151,7 @@ public class DicaDao {
         }
     }
 
-    public void remove() {
+    public void removeTudo() {
         try {
             PreparedStatement stmt = connection.prepareStatement("DELETE FROM dica");
             stmt.execute();

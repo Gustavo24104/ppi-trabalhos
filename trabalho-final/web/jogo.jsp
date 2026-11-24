@@ -19,19 +19,7 @@
                 <input type="date" id="dataJogada" name="dataJogada">
                 <label class="apagar"><input type="checkbox" name="limpar" value="dataJogada"> apagar valor salvo</label>
             </p>
-            <p>
-                <label for="categoria">Categoria:</label>
-                <select id="categoria" name="categoria">
-                    <option value="">(em branco)</option>
-                    <option value="historia">História</option>
-                    <option value="cinema">Cinema</option>
-                    <option value="literatura">Literatura</option>
-                    <option value="musica">Música</option>
-                    <option value="ciencias">Ciências</option>
-                    <option value="esportes">Esportes</option>
-                </select>
-                <label class="apagar"><input type="checkbox" name="limpar" value="categoria"> apagar valor salvo</label>
-            </p>
+
         </fieldset>
 
         <p>O ano é a chave: consultar e remover usam só ele. Para alterar, informe o ano e apenas os campos que quiser mudar

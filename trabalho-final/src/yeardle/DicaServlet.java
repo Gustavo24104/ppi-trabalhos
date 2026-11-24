@@ -54,6 +54,7 @@ public class DicaServlet extends HttpServlet {
                 if (campos.preenchido("dicaID")) {
                     dica.setDicaID(campos.inteiro("dicaID"));
                 }
+                dica.setCategoria(campos.texto("categoria"));
                 dao.adiciona(dica);
                 sucesso = true;
                 mensagem = "Dica cadastrada com sucesso!";
@@ -74,6 +75,9 @@ public class DicaServlet extends HttpServlet {
                         mudou = true;
                     } else if (campos.preenchido("anoDica")) {
                         dica.setAnoDica(campos.inteiro("anoDica"));
+                        mudou = true;
+                    } else if(campos.preenchido("categoria")) {
+                        dica.setCategoria(campos.texto("categoria"));
                         mudou = true;
                     }
 
@@ -137,6 +141,7 @@ public class DicaServlet extends HttpServlet {
         d.put("ID", String.valueOf(dica.getDicaID()));
         d.put("Texto", dica.getTextoDica());
         d.put("Ano", dica.getAnoDica() > 0 ? String.valueOf(dica.getAnoDica()) : "-");
+        d.put("Categoria", dica.getCategoria() == null ? "-" : dica.getCategoria());
         return d;
     }
 }

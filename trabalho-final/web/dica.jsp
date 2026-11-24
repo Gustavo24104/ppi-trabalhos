@@ -23,6 +23,19 @@
                 <input type="number" id="anoDica" name="anoDica" min="1901" placeholder="Ex.: 1958">
                 <label class="apagar"><input type="checkbox" name="limpar" value="anoDica"> apagar valor salvo</label>
             </p>
+            <p>
+                <label for="categoria">Categoria:</label>
+                <select id="categoria" name="categoria">
+                    <option value="">(em branco)</option>
+                    <option value="historia">História</option>
+                    <option value="cinema">Cinema</option>
+                    <option value="literatura">Literatura</option>
+                    <option value="musica">Música</option>
+                    <option value="ciencias">Ciências</option>
+                    <option value="esportes">Esportes</option>
+                </select>
+                <label class="apagar"><input type="checkbox" name="limpar" value="categoria"> apagar valor salvo</label>
+            </p>
         </fieldset>
 
         <p>O ID é obrigatório para alterar, consultar e remover. Para alterar, informe o ID e apenas os campos que quiser mudar

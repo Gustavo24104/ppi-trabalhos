@@ -4,6 +4,8 @@ public class Dica {
     private int dicaID;
     private String textoDica;
     private int anoDica;
+    private String categoria;
+
 
     public int getDicaID() {
         return dicaID;
@@ -27,6 +29,14 @@ public class Dica {
 
     public void setAnoDica(int anoDica) {
         this.anoDica = anoDica;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 
     public String toString() {
