@@ -34,17 +34,7 @@
     %>
         <p>
 
-            <label for="userID">Usuário:</label>
-            <select id="userID" name="userID" required>
-                <option value="">-- Selecione um usuário --</option>
-                <%
-                if (usuarios != null) {
-                    for (Usuario u : usuarios) { %>
-                    <option value="<%= u.getUserID() %>" <%= (u.getUserID() == 1) ? "selected" : "" %>>
-                        ID <%= u.getUserID() %> &mdash; <%= escapa(u.getNickname()) %> (<%= escapa(u.getNomeReal()) %>)
-                    </option>
-                <%  }
-                } %>
+
             </select>
             <div style="text-align:center;">
                 <label for="guess">Dê seu chute:</label>

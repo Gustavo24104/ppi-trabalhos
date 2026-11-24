@@ -143,27 +143,27 @@ public class UserGameDao {
         }
     }
 
-    public void altera() {
-        String sql = "UPDATE userGame SET pontuacao=10 WHERE userID=1";
-
-        try {
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.execute();
-            stmt.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void remove() {
-        try {
-            PreparedStatement stmt = connection.prepareStatement("DELETE FROM userGame");
-            stmt.execute();
-            stmt.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public void altera() {
+//        String sql = "UPDATE userGame SET pontuacao=10 WHERE userID=1";
+//
+//        try {
+//            PreparedStatement stmt = connection.prepareStatement(sql);
+//            stmt.execute();
+//            stmt.close();
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+//
+//    public void remove() {
+//        try {
+//            PreparedStatement stmt = connection.prepareStatement("DELETE FROM userGame");
+//            stmt.execute();
+//            stmt.close();
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     public void fechaConexao() throws SQLException {
         connection.close();
