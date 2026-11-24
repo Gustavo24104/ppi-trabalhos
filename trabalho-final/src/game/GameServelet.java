@@ -62,11 +62,16 @@ public class GameServelet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
+        int guess = Integer.parseInt(req.getParameter("guess"));
+        if(guess == jogoAtual.getAno()) {
+            req.getRequestDispatcher("indexGame.jsp").forward(req, resp);
+        } else {
+            req.getRequestDispatcher("game.jsp").forward(req, resp);
+        }
     }
 
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
+        req.getRequestDispatcher("game.jsp").forward(req, resp);
     }
 
 }

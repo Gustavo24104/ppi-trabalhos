@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.List, java.util.Map, yeardle.*" %>
+<%@ page import="java.util.List, java.util.Map, yeardle.*, game.*" %>
 <% request.setCharacterEncoding("UTF-8"); /* antes do jsp:include, para o jsp:param com acento chegar certo */ %>
 <jsp:include page="headerGame.jsp">
     <jsp:param name="tituloPagina" value="Jogar!" />
@@ -11,7 +11,7 @@
 %>
 <jsp:include page="navGame.jsp" />
 
-<form method="post" action="game.jsp" enctype="multipart/form-data">
+<form method="post" action="jogar" enctype="multipart/form-data">
     <%
     UsuarioDao uDao = new UsuarioDao();
     List<Usuario> usuarios = null;
@@ -44,7 +44,7 @@
             <div style="text-align:center;">
                 <button type="submit" style="border-radius: 50%"> Chutar 🥾 </button>
                 <button type="submit" style="border-radius: 50%" > Dica 💡 </button>
-                <button type="clear" style="border-radius: 50%" > Limpar 🪌 </button>
+                <button type="reset" style="border-radius: 50%" > Limpar 🪌 </button>
             </div>
             <hr>
             <div>
