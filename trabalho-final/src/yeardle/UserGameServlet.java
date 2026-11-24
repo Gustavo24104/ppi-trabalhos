@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Date;
 import java.util.*;
 
 @WebServlet("/usergame")
@@ -155,16 +156,18 @@ public class UserGameServlet extends HttpServlet {
 
 
 
-    // campos da partida para a tabela da página de sucesso
+    // detalhes da partida que usuarios podem ver
     private static Map<String, String> detalhesPublicos(UserGame userGame, Upload screenshot) {
         Map<String, String> d = new LinkedHashMap<>();
         UsuarioDao ud = new UsuarioDao();
         Usuario user = ud.busca(userGame.getUserID());
+        JogoDao jd = new JogoDao();
+        Jogo j = jd.busca(userGame.getAno());
 
         d.put("Usuário", String.valueOf(user.getNickname()));
-        d.put("Ano", String.valueOf(userGame.getAno()));
+        d.put("Dia jogado", String.valueOf(new Date(j.getDataJogada().getTimeInMillis()).toString()));
         d.put("Pontuação", String.valueOf(userGame.getPontuacao()));
-        d.put("Screenshot de desempenho", screenshot != null ? screenshot.getNomeOriginal() : "-");
+//        d.put("Screenshot de desempenho", screenshot != null ? screenshot.getNomeOriginal() : "-");
         return d;
     }
 
@@ -174,7 +177,7 @@ public class UserGameServlet extends HttpServlet {
         d.put("ID do usuário", String.valueOf(userGame.getUserID()));
         d.put("Ano", String.valueOf(userGame.getAno()));
         d.put("Pontuação", String.valueOf(userGame.getPontuacao()));
-        d.put("Screenshot de desempenho", screenshot != null ? screenshot.getNomeOriginal() : "-");
+//        d.put("Screenshot de desempenho", screenshot != null ? screenshot.getNomeOriginal() : "-");
         return d;
     }
 }

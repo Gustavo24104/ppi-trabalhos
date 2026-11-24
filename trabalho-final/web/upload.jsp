@@ -112,12 +112,6 @@
                 <input type="file" id="arquivoPerfil" name="arquivoPerfil" accept="image/*"><br>
                 <small>Formatos aceitos: <jsp:getProperty name="upl" property="extensoesPermitidasPerfil" /></small>
             </p>
-
-            <p>
-                <label for="arquivoPartida"><strong>Arquivo 2 &mdash; Screenshot do desempenho no jogo (Contexto: Partidas):</strong></label><br>
-                <input type="file" id="arquivoPartida" name="arquivoPartida" accept="image/*"><br>
-                <small>Formatos aceitos: <jsp:getProperty name="upl" property="extensoesPermitidasPartida" /></small>
-            </p>
         </fieldset>
 
         <fieldset>

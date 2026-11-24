@@ -59,50 +59,6 @@
         }
     %>
 
-    <section>
-        <h3>Screenshots de Desempenho no Jogo</h3>
-        <div class="rolagem">
-            <table class="lista">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Apelido</th>
-                    <th>Screenshot do Desempenho</th>
-                    <th>Upload</th>
-                </tr>
-                </thead>
-                <tbody>
-                <% if (usuarios != null && !usuarios.isEmpty()) {
-                    for (Usuario u : usuarios) {
-                        Upload arq = arquivosPartida.get(u.getUserID());
-                %>
-                    <tr>
-                        <td><%= u.getUserID() %></td>
-                        <td><%= escapa(u.getNickname()) %></td>
-                        <td>
-                            <% if (arq != null) { %>
-                                <img src="download?userID=<%= u.getUserID() %>&amp;contexto=partida&amp;modo=inline"
-                                     alt="Screenshot de desempenho de <%= escapa(u.getNickname()) %>"
-                                     style="width: 60px; height: 36px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 8px;">
-                                <a href="download?userID=<%= u.getUserID() %>&amp;contexto=partida">
-                                    Baixar screenshot (<%= escapa(arq.getNomeOriginal()) %>)
-                                </a>
-                            <% } else { %>
-                                <em>Nenhum screenshot enviado</em>
-                            <% } %>
-                        </td>
-                        <td><a href="upload.jsp?userID=<%= u.getUserID() %>">Enviar / Alterar</a></td>
-                    </tr>
-                <%  }
-                } else { %>
-                    <tr>
-                        <td colspan="4">Nenhum usuário cadastrado.</td>
-                    </tr>
-                <% } %>
-                </tbody>
-            </table>
-        </div>
-    </section>
 </main>
 
 <jsp:include page="footer.jsp" />
