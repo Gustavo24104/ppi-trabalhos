@@ -156,7 +156,11 @@ public class GameServelet extends HttpServlet {
             session.removeAttribute("jogoAtual");
             session.removeAttribute("dicasReveladas");
 
-            resp.sendRedirect("ganhou.jsp");
+            if(encontrado.getPontuacao() != 0) {
+                resp.sendRedirect("ganhou.jsp");
+            } else {
+                resp.sendRedirect("perdeu.jsp");
+            }
             return;
         }
 
