@@ -23,18 +23,19 @@ public class DownloadServlet extends HttpServlet {
         String nameParam = req.getParameter("fileName");
         String contexto = req.getParameter("contexto");
 
-        if (userIdParam == null || contexto == null
-                || (!"perfil".equals(contexto) && !"partida".equals(contexto))) {
+        if ((userIdParam == null && nameParam == null) || (!"perfil".equals(contexto) && !"partida".equals(contexto))) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parâmetros de download inválidos.");
             return;
         }
 
-        int userID;
-        try {
-            userID = Integer.parseInt(userIdParam);
-        } catch (NumberFormatException e) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID de usuário inválido.");
-            return;
+        int userID = -1;
+        if (userIdParam != null) {
+            try {
+                userID = Integer.parseInt(userIdParam);
+            } catch (NumberFormatException e) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID de usuário inválido.");
+                return;
+            }
         }
 
         String descricaoContexto = "perfil".equals(contexto)

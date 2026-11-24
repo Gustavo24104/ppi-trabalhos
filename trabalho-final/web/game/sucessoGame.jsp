@@ -55,7 +55,7 @@
                                     if (v.endsWith(".png") || v.endsWith(".gif") ||
                                         v.endsWith(".jpeg") || v.endsWith(".jpg") || v.endsWith(".webp")) {
                                 %>
-                                    <img src="download?fileName=<%= escapa(valor) %>&amp;contexto=partida&amp;modo=inline"
+                                    <img src="download?fileName=<%=valor%>&amp;contexto=partida&amp;modo=inline"
                                          alt="Screenshot de desempenho"
                                          style="width: 60px; height: 36px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 8px;">
                                 <% } else { %>
