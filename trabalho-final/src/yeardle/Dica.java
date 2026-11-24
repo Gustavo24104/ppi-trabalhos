@@ -28,4 +28,8 @@ public class Dica {
     public void setAnoDica(int anoDica) {
         this.anoDica = anoDica;
     }
+
+    public String toString() {
+        return textoDica;
+    }
 }

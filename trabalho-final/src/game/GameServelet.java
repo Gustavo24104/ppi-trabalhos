@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.*;
 import java.util.random.RandomGenerator;
@@ -20,8 +21,10 @@ public class GameServelet extends HttpServlet {
     DicaDao dd = new DicaDao();
     Jogo jogoAtual;
     List<Dica> dicasAtuas;
+//    private int tentativas = 0;
+    private final int MAX_TENTATIVAS = 5;
 
-    @Override
+//    @Override
     public void init() {
         jogoAtual = jd.buscaPorDataJogada(Calendar.getInstance());
         if(jogoAtual == null) {
@@ -33,6 +36,7 @@ public class GameServelet extends HttpServlet {
             jd.altera(jogoAtual);
         }
         dicasAtuas = dd.buscaPorJogo(jogoAtual.getAno());
+//        tentativas = 1;
     }
 
     @Override
@@ -61,16 +65,53 @@ public class GameServelet extends HttpServlet {
         super.service(req, resp);
     }
 
+    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int guess = Integer.parseInt(req.getParameter("guess"));
-        if(guess == jogoAtual.getAno()) {
-            req.getRequestDispatcher("sucessoGame.jsp").forward(req, resp); // lembra q ele sucessoGame eh pra outra coisa
-        } else {
-            req.getRequestDispatcher("game.jsp").forward(req, resp);
+        HttpSession session = req.getSession();
+
+        Jogo jogoAtual = (Jogo) session.getAttribute("jogoAtual");
+        Integer tentativas = (Integer) session.getAttribute("tentativas");
+
+        if (jogoAtual == null || tentativas == null) {
+            resp.sendRedirect("jogar");
+            return;
         }
+
+        int guess = Integer.parseInt(req.getParameter("guess"));
+        tentativas++;
+        session.setAttribute("tentativas", tentativas);
+
+        if (guess == jogoAtual.getAno()) {
+//            session.removeAttribute("tentativas");
+//            session.removeAttribute("jogoAtual");
+            session.removeAttribute("dicasReveladas");
+            resp.sendRedirect("sucessoGame.jsp");
+            return;
+        }
+
+        if (tentativas >= MAX_TENTATIVAS) {
+            session.setAttribute("anoCorreto", jogoAtual.getAno());
+            session.removeAttribute("tentativas");
+            session.removeAttribute("jogoAtual");
+            session.removeAttribute("dicasReveladas");
+
+            resp.sendRedirect("perdeu.jsp");
+            return;
+        }
+        resp.sendRedirect("jogar");
     }
 
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        HttpSession session = req.getSession();
+
+        // Inicializa a partida na sessão se ainda não existir
+        if (session.getAttribute("jogoAtual") == null) {
+            session.setAttribute("jogoAtual", jogoAtual);
+            session.setAttribute("dicasReveladas", 1);
+            session.setAttribute("tentativas", 0);
+        }
+
         req.getRequestDispatcher("game.jsp").forward(req, resp);
     }
 

@@ -20,6 +20,17 @@
     } finally {
       try { uDao.fechaConexao(); } catch (Exception ignored) {}
     }
+
+    int tentativas = ((Integer) session.getAttribute("tentativas")) != null ? (Integer) session.getAttribute("tentativas") : 0;
+
+    Jogo jogoAtual = (Jogo) session.getAttribute("jogoAtual");
+    DicaDao dd = new DicaDao();
+    List<Dica> dicas = (jogoAtual != null) ? dd.buscaPorJogo(jogoAtual.getAno()) : java.util.Collections.emptyList();
+    Integer rev = (Integer) session.getAttribute("dicasReveladas");
+    int dicasReveladas = (rev != null) ? rev : 0;
+    boolean temMaisDicas = dicasReveladas < dicas.size();
+    dd.fechaConexao();
+
     %>
         <p>
 
@@ -39,17 +50,19 @@
                 <label for="guess">Dê seu chute:</label>
                 <input type="number" id="guess" name="guess" placeholder="1900" required>
                 <br>
-                <a> Pontuacao atual: 67 </a>
+                <a> Tentativas restantes: <%= 5 - tentativas %> </a>
             </div>
             <div style="text-align:center;">
-                <button type="submit" name="chutar" style="border-radius: 50%"> Chutar 🥾 </button>
-                <button type="submit" name="dica" style="border-radius: 50%" > Dica 💡 </button>
-                <button type="reset" style="border-radius: 50%" > Limpar 🪌 </button>
+                <button type="submit" name="chutar"> Chutar </button>
+                <button type="submit" formaction="gameDica" <%= temMaisDicas ? "" : "disabled" %>
+                            name="dica" formnovalidate> Dica </button>
+                <button type="reset"> Limpar</button>
             </div>
             <hr>
-            <div>
-                <a> ano oficial do luigi </a> <br>
-                <a> mais dicas... </a>
+            <div id="lista-dicas">
+                <% for (int i = 0; i < Math.min(dicasReveladas, dicas.size()); i++) { %>
+                    <p><%= escapa(dicas.get(i).toString()) %></p>
+                <% } %>
             </div>
         </p>
 </form>
