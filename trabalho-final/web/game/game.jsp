@@ -11,7 +11,7 @@
 %>
 <jsp:include page="navGame.jsp" />
 
-<form method="post" action="jogar" enctype="multipart/form-data">
+<form method="post" action="jogar">
     <%
     UsuarioDao uDao = new UsuarioDao();
     List<Usuario> usuarios = null;
@@ -37,13 +37,13 @@
             </select>
             <div style="text-align:center;">
                 <label for="guess">Dê seu chute:</label>
-                <input type="number" id="guess" name="guess" placeholder="1900">
+                <input type="number" id="guess" name="guess" placeholder="1900" required>
                 <br>
                 <a> Pontuacao atual: 67 </a>
             </div>
             <div style="text-align:center;">
-                <button type="submit" style="border-radius: 50%"> Chutar 🥾 </button>
-                <button type="submit" style="border-radius: 50%" > Dica 💡 </button>
+                <button type="submit" name="chutar" style="border-radius: 50%"> Chutar 🥾 </button>
+                <button type="submit" name="dica" style="border-radius: 50%" > Dica 💡 </button>
                 <button type="reset" style="border-radius: 50%" > Limpar 🪌 </button>
             </div>
             <hr>

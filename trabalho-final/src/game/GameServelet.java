@@ -64,7 +64,7 @@ public class GameServelet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         int guess = Integer.parseInt(req.getParameter("guess"));
         if(guess == jogoAtual.getAno()) {
-            req.getRequestDispatcher("indexGame.jsp").forward(req, resp);
+            req.getRequestDispatcher("sucessoGame.jsp").forward(req, resp); // lembra q ele sucessoGame eh pra outra coisa
         } else {
             req.getRequestDispatcher("game.jsp").forward(req, resp);
         }
