@@ -32,6 +32,7 @@ public class GameServelet extends HttpServlet {
 
     public void getJogoAtual() {
         Calendar hoje = Calendar.getInstance();
+        jogoAtual = jd.buscaPorDataJogada(Calendar.getInstance());
         boolean mesmoDia = jogoAtual != null && hoje.get(Calendar.DAY_OF_YEAR) == jogoAtual.getDataJogada().get(Calendar.DAY_OF_YEAR) &&
                 hoje.get(Calendar.YEAR) == jogoAtual.getDataJogada().get(Calendar.YEAR);
 
@@ -39,8 +40,7 @@ public class GameServelet extends HttpServlet {
             return;
         }
 
-        jogoAtual = jd.buscaPorDataJogada(Calendar.getInstance());
-        if(jogoAtual == null || !mesmoDia) {
+        if(jogoAtual == null) {
             List<Jogo> candidatos = jd.getNaoJogados();
             Random rng = new Random();
             // se nao tiver nenhum pra hoje, ja escolhe um jogo aleatório pra jogar
@@ -153,8 +153,13 @@ public class GameServelet extends HttpServlet {
             session.setAttribute("tentativas", 0);
         }
 
+        if (session.getAttribute("userID") == null) { // user 1 por padrao (para testes)
+            session.setAttribute("userdID", 1);
+        }
+
         // se ja jogou (ent ta no leaderboard)
-        UserGame encontrado = ugd.busca(  (Integer) session.getAttribute("userID"), jogoAtual.getAno());
+        Integer i = (Integer) session.getAttribute("userID");
+        UserGame encontrado = i != null ? ugd.busca(i, jogoAtual.getAno()) : null;
         if(encontrado != null) {
             // entao nao joga denovo
             session.setAttribute("pontuacao", encontrado.getPontuacao());
