@@ -1,6 +1,5 @@
 package game;
 
-import yeardle.Campos;
 import yeardle.Usuario;
 import yeardle.UsuarioDao;
 
@@ -11,19 +10,41 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.*;
-
 
 
 @WebServlet("/login")
 public class loginServlet extends HttpServlet  {
+
+    // encaminha para a pagina de erro
+    private void erro(HttpServletRequest req, HttpServletResponse resp, String mensagem) throws ServletException, IOException {
+        req.setAttribute("entidade", "Login");
+        req.setAttribute("mensagem", mensagem);
+        req.setAttribute("paginaVoltar", "indexGame.jsp");
+        req.getRequestDispatcher("erro.jsp").forward(req, resp);
+    }
+
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
         String nome = req.getParameter("username");
         String senha = req.getParameter("senha");
 
-        UsuarioDao ud = new UsuarioDao();
-        Usuario u = ud.buscaPorNickname(nome);
+        if (nome == null || nome.trim().isEmpty() || senha == null || senha.trim().isEmpty()) {
+            erro(req, resp, "Informe o nickname e a senha.");
+            return;
+        }
 
+        Usuario u = null;
+        UsuarioDao ud = new UsuarioDao();
+        try {
+            u = ud.buscaPorNickname(nome);
+        } finally {
+            try { ud.fechaConexao(); } catch (Exception ignored) {}
+        }
+
+        if (u == null) {
+            erro(req, resp, "Usuário '" + nome + "' não encontrado.");
+            return;
+        }
 
         if (senha.equals(u.getSenha())) {
             HttpSession sessaoAntiga = req.getSession(false);
@@ -34,15 +55,13 @@ public class loginServlet extends HttpServlet  {
             HttpSession novaSessao = req.getSession(true);
             novaSessao.setAttribute("userID", u.getUserID());
 
-
             if (u.isEhAdmin()) {
-                req.getRequestDispatcher("index.jsp").forward(req, resp);
-                return;
+                resp.sendRedirect("index.jsp");
             } else {
                 resp.sendRedirect("jogar");
             }
         } else {
-            resp.sendRedirect("indexGame.jsp");
+            erro(req, resp, "Senha incorreta.");
         }
     }
 }

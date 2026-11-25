@@ -33,8 +33,12 @@
                 <input type="email" id="email" name="email" maxlength="50" placeholder="Ex.: joao@gmail.com">
             </p>
             <p>
-                <label for="senha">Cidade:</label>
-                <input type="text" id="senha" name="senha" maxlength="100">
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" name="senha" maxlength="150" placeholder="Em branco na alteração = mantém a senha salva">
+            </p>
+            <p>
+                <label for="ehAdmin">Administrador:</label>
+                <input type="checkbox" id="ehAdmin" name="ehAdmin" value="1">
             </p>
             <p>
                 <label for="cidade">Cidade:</label>

@@ -84,17 +84,32 @@ public class GameServelet extends HttpServlet {
         session.setAttribute("pontuacao", points);
 
         int userID = (Integer) session.getAttribute("userID");
+
+        // evita salvar/somar duas vezes a mesma partida
+        if (ugd.busca(userID, jogoAtual.getAno()) != null) {
+            return;
+        }
+
         UserGame ug = new UserGame();
         ug.setAno(jogoAtual.getAno());
         ug.setPontuacao(points);
         ug.setUserID(userID);
 
         ugd.adiciona(ug);
+
+        // soma na pontuacao geral do usuario
+        ud.somaPontos(userID, points);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
+
+        // login obrigatorio
+        if (session.getAttribute("userID") == null) {
+            resp.sendRedirect("indexGame.jsp");
+            return;
+        }
 
         Jogo jogoAtual = (Jogo) session.getAttribute("jogoAtual");
         Integer tentativas = (Integer) session.getAttribute("tentativas");
@@ -144,17 +159,20 @@ public class GameServelet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        getJogoAtual();
         HttpSession session = req.getSession();
+
+        // login obrigatorio
+        if (session.getAttribute("userID") == null) {
+            resp.sendRedirect("indexGame.jsp");
+            return;
+        }
+
+        getJogoAtual();
         // Inicializa a partida na sessão se ainda não existir
         if (session.getAttribute("jogoAtual") == null) {
             session.setAttribute("jogoAtual", jogoAtual);
             session.setAttribute("dicasReveladas", 0);
             session.setAttribute("tentativas", 0);
-        }
-
-        if (session.getAttribute("userID") == null) { // user 1 por padrao (para testes)
-            session.setAttribute("userdID", 1);
         }
 
         // se ja jogou (ent ta no leaderboard)

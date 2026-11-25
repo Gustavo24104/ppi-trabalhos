@@ -62,8 +62,14 @@ CREATE TABLE IF NOT EXISTS userGame (
 
 -- dados de teste, exigidos pelas chaves estrangeiras
 INSERT IGNORE INTO jogo (ano) VALUES (1958);
-INSERT IGNORE INTO users (pontosTotais, nomeReal, nickname, email, cidade, anoFav, categoriaFav)
-  VALUES (0, 'Joao da Silva', 'joaozinho', 'joao@gmail.com', 'Belo Horizonte', 1958, 'esportes');
+INSERT IGNORE INTO users (pontosTotais, nomeReal, nickname, email, cidade, anoFav, categoriaFav, senha, ehAdm)
+  VALUES (0, 'Joao da Silva', 'joaozinho', 'joao@gmail.com', 'Belo Horizonte', 1958, 'esportes', '1234', 0);
 
-INSERT IGNORE users (pontosTotais, nomeReal, nickname, email, cidade, anoFav, categoriaFav, ehAdm)
-  VALUES (0, 'Vinicius', 'adm', 'adm@gmail.com', 'Belo Horizonte', 1958, 'esportes', 1);
+INSERT IGNORE INTO users (pontosTotais, nomeReal, nickname, email, cidade, anoFav, categoriaFav, senha, ehAdm)
+  VALUES (0, 'Vinicius', 'adm', 'adm@gmail.com', 'Belo Horizonte', 1958, 'esportes', 'adm', 1);
+
+-- bancos já existentes: o INSERT IGNORE acima não altera linhas que já existem
+UPDATE users SET senha = '1234' WHERE nickname = 'joaozinho' AND senha IS NULL;
+UPDATE users SET ehAdm = 0 WHERE nickname = 'joaozinho' AND ehAdm IS NULL;
+UPDATE users SET senha = 'adm' WHERE nickname = 'adm' AND senha IS NULL;
+UPDATE users SET ehAdm = 1 WHERE nickname = 'adm' AND ehAdm IS NULL;

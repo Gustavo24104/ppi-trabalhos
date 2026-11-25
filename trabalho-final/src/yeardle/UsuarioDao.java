@@ -16,8 +16,8 @@ public class UsuarioDao {
     public void adiciona(Usuario usuario) {
         // userID <= 0: deixa o AUTO_INCREMENT gerar o valor
         boolean semId = usuario.getUserID() <= 0;
-        String sql = "INSERT INTO users (pontosTotais, nomeReal, nickname, email, cidade, anoFav, categoriaFav"
-                + (semId ? ") VALUES (?, ?, ?, ?, ?, ?, ?)" : ", userID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        String sql = "INSERT INTO users (pontosTotais, nomeReal, nickname, email, cidade, anoFav, categoriaFav, senha, ehAdm"
+                + (semId ? ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)" : ", userID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
         try {
             // prepared statement para inserção
@@ -26,7 +26,7 @@ public class UsuarioDao {
             // seta os valores
             preenche(stmt, usuario);
             if (!semId) {
-                stmt.setInt(8, usuario.getUserID());
+                stmt.setInt(10, usuario.getUserID());
             }
 
             // executa
@@ -96,12 +96,12 @@ public class UsuarioDao {
     // retorna true se algum registro foi alterado
     public boolean altera(Usuario usuario) {
         String sql = "UPDATE users SET pontosTotais=?, nomeReal=?, nickname=?, email=?, cidade=?, "
-                + "anoFav=?, categoriaFav=? WHERE userID=?";
+                + "anoFav=?, categoriaFav=?, senha=?, ehAdm=? WHERE userID=?";
 
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             preenche(stmt, usuario);
-            stmt.setInt(8, usuario.getUserID());
+            stmt.setInt(10, usuario.getUserID());
             int linhas = stmt.executeUpdate();
             stmt.close();
             return linhas > 0;
@@ -118,6 +118,20 @@ public class UsuarioDao {
             int linhas = stmt.executeUpdate();
             stmt.close();
             return linhas > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // soma pontos ao total do usuario (pontuacao geral)
+    public void somaPontos(int userID, int pontos) {
+        try {
+            PreparedStatement stmt = connection.prepareStatement(
+                    "UPDATE users SET pontosTotais = pontosTotais + ? WHERE userID = ?");
+            stmt.setInt(1, pontos);
+            stmt.setInt(2, userID);
+            stmt.executeUpdate();
+            stmt.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -156,5 +170,7 @@ public class UsuarioDao {
             stmt.setNull(6, Types.INTEGER);
         }
         stmt.setString(7, usuario.getCategoriaFav());
+        stmt.setString(8, usuario.getSenha());
+        stmt.setBoolean(9, usuario.isEhAdmin());
     }
 }

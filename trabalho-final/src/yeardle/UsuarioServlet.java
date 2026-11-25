@@ -61,7 +61,8 @@ public class UsuarioServlet extends HttpServlet {
                 usuario.setNickname(campos.texto("nickname"));
                 usuario.setEmail(campos.texto("email"));
                 usuario.setCidade(campos.texto("cidade"));
-                usuario.setSenha(campos.texto("senha"));
+                usuario.setSenha(campos.preenchido("senha") ? campos.texto("senha") : null);
+                usuario.setEhAdmin(req.getParameter("ehAdmin") != null);
                 if (campos.preenchido("anoFav")) {
                     usuario.setAnoFav(campos.inteiro("anoFav"));
                 }
@@ -114,8 +115,15 @@ public class UsuarioServlet extends HttpServlet {
                     } else if (campos.preenchido("categoriaFav")) {
                         usuario.setCategoriaFav(campos.texto("categoriaFav"));
                         mudou = true;
-                    } else if(campos.preenchido("senha")) {
+                    }
+                    // senha em branco mantém a senha salva
+                    if (campos.preenchido("senha")) {
                         usuario.setSenha(campos.texto("senha"));
+                        mudou = true;
+                    }
+                    // checkbox de administrador: marcado promove; desmarcado mantém o valor salvo
+                    if (req.getParameter("ehAdmin") != null && !usuario.isEhAdmin()) {
+                        usuario.setEhAdmin(true);
                         mudou = true;
                     }
 
@@ -187,6 +195,7 @@ public class UsuarioServlet extends HttpServlet {
         d.put("Cidade", usuario.getCidade());
         d.put("Ano favorito", usuario.getAnoFav() > 0 ? String.valueOf(usuario.getAnoFav()) : "-");
         d.put("Categoria favorita", usuario.getCategoriaFav() == null ? "-" : usuario.getCategoriaFav());
+        d.put("Admin", usuario.isEhAdmin() ? "Sim" : "Não");
         d.put("Foto de perfil", fotoPerfil != null ? fotoPerfil.getNomeOriginal() : "-");
         return d;
     }
