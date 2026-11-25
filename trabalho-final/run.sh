@@ -14,7 +14,7 @@ fi
 
 # monta a aplicacao em webapps/trabalho8 (jsp + classes + driver do mysql)
 APP=$TOMCAT/webapps/trabalhoFinal
-rm -rf "$APP"
+#rm -rf "$APP"
 mkdir -p "$APP/WEB-INF/classes"
 cp web/*.jsp "$APP/"
 cp web/game/*.jsp "$APP/"

@@ -149,7 +149,7 @@ public class GameServelet extends HttpServlet {
         // Inicializa a partida na sessão se ainda não existir
         if (session.getAttribute("jogoAtual") == null) {
             session.setAttribute("jogoAtual", jogoAtual);
-            session.setAttribute("dicasReveladas", 1);
+            session.setAttribute("dicasReveladas", 0);
             session.setAttribute("tentativas", 0);
         }
 

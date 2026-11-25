@@ -11,8 +11,7 @@
 %>
 <jsp:include page="navGame.jsp" />
 
-<form method="post" action="jogar">
-    <%
+<%
     UsuarioDao uDao = new UsuarioDao();
     List<Usuario> usuarios = null;
     try {
@@ -31,10 +30,16 @@
     boolean temMaisDicas = dicasReveladas < dicas.size();
     dd.fechaConexao();
 
-    %>
+%>
+
+<div style="text-align:center;">
+    <img src="download?ano=<%= jogoAtual.getAno() %>&amp;contexto=jogo&amp;modo=inline"
+     alt="Foto marcante de <%= jogoAtual.getAno() %>"
+     style="width: 800px; height: 600px; object-fit: contain; border-radius: 4px; vertical-align: middle; margin-right: 8px;">
+    <a href="download?ano=<%= jogoAtual.getAno() %>&amp;contexto=jogo"> </a>
+</div>
+<form method="post" action="jogar">
         <p>
-
-
             </select>
             <div style="text-align:center;">
                 <label for="guess">Dê seu chute:</label>
