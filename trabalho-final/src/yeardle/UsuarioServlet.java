@@ -61,6 +61,7 @@ public class UsuarioServlet extends HttpServlet {
                 usuario.setNickname(campos.texto("nickname"));
                 usuario.setEmail(campos.texto("email"));
                 usuario.setCidade(campos.texto("cidade"));
+                usuario.setSenha(campos.texto("senha"));
                 if (campos.preenchido("anoFav")) {
                     usuario.setAnoFav(campos.inteiro("anoFav"));
                 }
@@ -112,6 +113,9 @@ public class UsuarioServlet extends HttpServlet {
                         mudou = true;
                     } else if (campos.preenchido("categoriaFav")) {
                         usuario.setCategoriaFav(campos.texto("categoriaFav"));
+                        mudou = true;
+                    } else if(campos.preenchido("senha")) {
+                        usuario.setSenha(campos.texto("senha"));
                         mudou = true;
                     }
 

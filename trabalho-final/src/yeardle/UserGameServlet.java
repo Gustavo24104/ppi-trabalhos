@@ -143,13 +143,14 @@ public class UserGameServlet extends HttpServlet {
         //                }
         lista.sort(Comparator.comparing((Map<String, String> m) -> Integer.valueOf(m.get("Pontuação"))));
 
+
         String mensagem = lista.isEmpty() ? "Nenhuma partida cadastrada." : lista.size() + " partida(s) cadastrada(s).";
 
         req.setAttribute("status", "sucesso");
         req.setAttribute("entidade", "Partida (UserGame)");
         req.setAttribute("mensagem", mensagem);
         req.setAttribute("detalhes", new LinkedHashMap<>());
-        req.setAttribute("lista", lista);
+        req.setAttribute("lista", lista.reversed());
         req.setAttribute("paginaVoltar", "indexGame.jsp");
         req.getRequestDispatcher("roteadorGame.jsp").forward(req, resp);
     }

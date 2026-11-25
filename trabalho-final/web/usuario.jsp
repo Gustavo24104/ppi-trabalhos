@@ -33,6 +33,10 @@
                 <input type="email" id="email" name="email" maxlength="50" placeholder="Ex.: joao@gmail.com">
             </p>
             <p>
+                <label for="senha">Cidade:</label>
+                <input type="text" id="senha" name="senha" maxlength="100">
+            </p>
+            <p>
                 <label for="cidade">Cidade:</label>
                 <input type="text" id="cidade" name="cidade" maxlength="100" placeholder="Ex.: Uberlândia">
             </p>

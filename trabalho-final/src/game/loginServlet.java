@@ -1,6 +1,8 @@
 package game;
 
 import yeardle.Campos;
+import yeardle.Usuario;
+import yeardle.UsuarioDao;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,17 +18,31 @@ import java.util.*;
 @WebServlet("/login")
 public class loginServlet extends HttpServlet  {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int userID = Integer.parseInt(req.getParameter("userID"));
+        String nome = req.getParameter("username");
+        String senha = req.getParameter("senha");
 
-        HttpSession sessaoAntiga = req.getSession(false);
-        if (sessaoAntiga != null) {
-            sessaoAntiga.invalidate();
+        UsuarioDao ud = new UsuarioDao();
+        Usuario u = ud.buscaPorNickname(nome);
+
+
+        if (senha.equals(u.getSenha())) {
+            HttpSession sessaoAntiga = req.getSession(false);
+            if (sessaoAntiga != null) {
+                sessaoAntiga.invalidate();
+            }
+
+            HttpSession novaSessao = req.getSession(true);
+            novaSessao.setAttribute("userID", u.getUserID());
+
+
+            if (u.isEhAdmin()) {
+                req.getRequestDispatcher("index.jsp").forward(req, resp);
+                return;
+            } else {
+                resp.sendRedirect("jogar");
+            }
+        } else {
+            resp.sendRedirect("indexGame.jsp");
         }
-
-        HttpSession novaSessao = req.getSession(true);
-        novaSessao.setAttribute("userID", userID);
-
-        // 4. Redireciona para o jogo
-        resp.sendRedirect("jogar");
     }
 }

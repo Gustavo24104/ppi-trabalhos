@@ -4,7 +4,20 @@
     <jsp:param name="tituloPagina" value="Como jogar yeardle" />
 </jsp:include>
 <jsp:include page="navGame.jsp" />
-<a> Adivinhe o ano recebendo dicas! A cada tentativa a partir da segunda sua pontuação diminui um pouco... <br>
-Tens o que é necessário para acertar o ano? </a>
+
+
+<form action="login" method="post">
+    <p>
+        <label for="username">Nome de usuário:</label> <br>
+        <input type="text" id="username" name="username" placeholder="Seu nome de usuário" required>
+    </p>
+    <p>
+        <label for="senha">Senha:</label><br>
+        <input type="password" id="senha" name="senha" required>
+    </p>
+    <button type="submit" name="enviar"> Login </button>
+</form>
+
+
 
 <jsp:include page="footerGame.jsp" />

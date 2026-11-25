@@ -74,6 +74,25 @@ public class UsuarioDao {
         }
     }
 
+    public Usuario buscaPorNickname(String nome) {
+        try {
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM users WHERE nickname=?");
+            stmt.setString(1, nome);
+            ResultSet rs = stmt.executeQuery();
+
+            Usuario usuario = null;
+            if (rs.next()) {
+                usuario = monta(rs);
+            }
+
+            rs.close();
+            stmt.close();
+            return usuario;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     // retorna true se algum registro foi alterado
     public boolean altera(Usuario usuario) {
         String sql = "UPDATE users SET pontosTotais=?, nomeReal=?, nickname=?, email=?, cidade=?, "
@@ -119,6 +138,8 @@ public class UsuarioDao {
         usuario.setCidade(rs.getString("cidade"));
         usuario.setAnoFav(rs.getInt("anoFav"));
         usuario.setCategoriaFav(rs.getString("categoriaFav"));
+        usuario.setEhAdmin(rs.getBoolean("ehAdm"));
+        usuario.setSenha(rs.getString("senha"));
         return usuario;
     }
 

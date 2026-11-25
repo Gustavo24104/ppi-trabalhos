@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(50) UNIQUE NOT NULL,
   cidade VARCHAR(100) NOT NULL,
   anoFav INT CHECK (anoFav > 1900),
+  senha VARCHAR(150),
+  ehAdm BOOL,
   categoriaFav ENUM('historia','cinema','literatura','musica','ciencias','esportes')
 );
 
@@ -62,3 +64,6 @@ CREATE TABLE IF NOT EXISTS userGame (
 INSERT IGNORE INTO jogo (ano) VALUES (1958);
 INSERT IGNORE INTO users (pontosTotais, nomeReal, nickname, email, cidade, anoFav, categoriaFav)
   VALUES (0, 'Joao da Silva', 'joaozinho', 'joao@gmail.com', 'Belo Horizonte', 1958, 'esportes');
+
+INSERT IGNORE users (pontosTotais, nomeReal, nickname, email, cidade, anoFav, categoriaFav, ehAdm)
+  VALUES (0, 'Vinicius', 'adm', 'adm@gmail.com', 'Belo Horizonte', 1958, 'esportes', 1);

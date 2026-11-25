@@ -80,7 +80,7 @@ public class GameServelet extends HttpServlet {
     }
 
     private void salvaPerformance(HttpSession session) {
-        int points = 5000 - 1000 * (Integer) session.getAttribute("dicasReveladas");
+        int points = 4000 - 1000 * (Integer) session.getAttribute("dicasReveladas");
         session.setAttribute("pontuacao", points);
 
         int userID = (Integer) session.getAttribute("userID");

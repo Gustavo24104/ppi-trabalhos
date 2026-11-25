@@ -10,6 +10,26 @@ public class Usuario {
     private int anoFav;
     private String categoriaFav;
 
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
+
+    private String senha;
+
+    public boolean isEhAdmin() {
+        return ehAdmin;
+    }
+
+    public void setEhAdmin(boolean ehAdmin) {
+        this.ehAdmin = ehAdmin;
+    }
+
+    private boolean ehAdmin;
+
     public int getUserID() {
         return userID;
     }
