@@ -20,12 +20,13 @@ public class loginServlet extends HttpServlet  {
         req.setAttribute("entidade", "Login");
         req.setAttribute("mensagem", mensagem);
         req.setAttribute("paginaVoltar", "indexGame.jsp");
-        req.getRequestDispatcher("erro.jsp").forward(req, resp);
+        req.getRequestDispatcher("erroGame.jsp").forward(req, resp);
     }
 
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         String nome = req.getParameter("username");
+        if (nome != null) nome = nome.trim();
         String senha = req.getParameter("senha");
 
         if (nome == null || nome.trim().isEmpty() || senha == null || senha.trim().isEmpty()) {
@@ -54,6 +55,7 @@ public class loginServlet extends HttpServlet  {
 
             HttpSession novaSessao = req.getSession(true);
             novaSessao.setAttribute("userID", u.getUserID());
+            novaSessao.setAttribute("ehAdmin", u.isEhAdmin());
 
             if (u.isEhAdmin()) {
                 resp.sendRedirect("index.jsp");

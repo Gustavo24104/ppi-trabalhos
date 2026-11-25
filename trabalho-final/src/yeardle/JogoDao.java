@@ -73,6 +73,25 @@ public class JogoDao {
 
 
 
+    // menor dataJogada da tabela (null se nenhum jogo tem data)
+    public Calendar menorDataJogada() {
+        try {
+            PreparedStatement stmt = connection.prepareStatement("SELECT MIN(dataJogada) FROM jogo");
+            ResultSet rs = stmt.executeQuery();
+
+            Calendar data = null;
+            if (rs.next() && rs.getDate(1) != null) {
+                data = Calendar.getInstance();
+                data.setTime(rs.getDate(1));
+            }
+            rs.close();
+            stmt.close();
+            return data;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public List<Jogo> getLista() {
         try {
             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM jogo ORDER BY ano");
@@ -86,6 +105,25 @@ public class JogoDao {
             rs.close();
             stmt.close();
             return jogos;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // data do jogo mais recente (<= hoje) que o usuario ainda nao jogou; null se nao houver
+    public java.time.LocalDate proximaDataNaoJogada(int userID, java.time.LocalDate hoje) {
+        try {
+            PreparedStatement stmt = connection.prepareStatement(
+                    "SELECT j.dataJogada FROM jogo j WHERE j.dataJogada IS NOT NULL AND j.dataJogada <= ? " +
+                    "AND NOT EXISTS (SELECT 1 FROM userGame u WHERE u.userID = ? AND u.ano = j.ano) " +
+                    "ORDER BY j.dataJogada DESC LIMIT 1");
+            stmt.setDate(1, java.sql.Date.valueOf(hoje));
+            stmt.setInt(2, userID);
+            ResultSet rs = stmt.executeQuery();
+            java.time.LocalDate r = rs.next() ? rs.getDate(1).toLocalDate() : null;
+            rs.close();
+            stmt.close();
+            return r;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

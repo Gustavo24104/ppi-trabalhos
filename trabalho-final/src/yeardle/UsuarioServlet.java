@@ -44,6 +44,42 @@ public class UsuarioServlet extends HttpServlet {
         super.service(req, resp);
     }
 
+    private static final String REGEX_EMAIL = "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$";
+    private static final java.util.List<String> CATEGORIAS =
+            java.util.Arrays.asList("historia", "cinema", "literatura", "musica", "ciencias", "esportes");
+
+    // validações do lado do servidor (o HTML pode ser burlado)
+    private static void validaNickname(String nickname) {
+        Campos.exige(nickname != null && !nickname.isBlank(), "O apelido é obrigatório.");
+        Campos.exige(nickname.length() <= 15, "O apelido deve ter no máximo 15 caracteres.");
+    }
+
+    private static void validaNomeReal(String nome) {
+        Campos.exige(nome != null && !nome.isBlank(), "O nome real é obrigatório.");
+        Campos.exige(nome.length() <= 100, "O nome real deve ter no máximo 100 caracteres.");
+    }
+
+    private static void validaCidade(String cidade) {
+        Campos.exige(cidade != null && cidade.length() <= 100, "A cidade deve ter no máximo 100 caracteres.");
+    }
+
+    private static void validaEmail(String email) {
+        Campos.exige(email == null || email.length() <= 50, "O e-mail deve ter no máximo 50 caracteres.");
+        Campos.exige(email != null && email.matches(REGEX_EMAIL), "Informe um e-mail válido (ex.: nome@dominio.com).");
+    }
+
+    private static void validaPontos(int pontos) {
+        Campos.exige(pontos >= 0, "Os pontos totais não podem ser negativos.");
+    }
+
+    private static void validaAnoFav(int ano) {
+        Campos.exige(ano > 1900, "O ano favorito deve ser maior que 1900.");
+    }
+
+    private static void validaCategoria(String categoria) {
+        Campos.exige(CATEGORIAS.contains(categoria), "Valor inválido para a categoria favorita.");
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String acao = req.getParameter("acao");
@@ -56,48 +92,63 @@ public class UsuarioServlet extends HttpServlet {
         try {
             if ("cadastrar".equals(acao)) {
                 Usuario usuario = new Usuario();
-                usuario.setPontosTotais(campos.inteiro("pontosTotais"));
+                validaNomeReal(campos.texto("nomeReal"));
+                validaCidade(campos.texto("cidade") == null ? "" : campos.texto("cidade"));
+                validaEmail(campos.texto("email") == null ? null : campos.texto("email").trim());
+                usuario.setPontosTotais(campos.inteiro("pontosTotais", "Pontos totais"));
+                validaPontos(usuario.getPontosTotais());
                 usuario.setNomeReal(campos.texto("nomeReal"));
-                usuario.setNickname(campos.texto("nickname"));
-                usuario.setEmail(campos.texto("email"));
+                validaNickname(campos.texto("nickname"));
+                usuario.setNickname(campos.texto("nickname").trim());
+                validaEmail(campos.texto("email") == null ? null : campos.texto("email").trim());
+                usuario.setEmail(campos.texto("email").trim());
                 usuario.setCidade(campos.texto("cidade"));
                 usuario.setSenha(campos.preenchido("senha") ? campos.texto("senha") : null);
-                usuario.setEhAdmin(req.getParameter("ehAdmin") != null);
+                usuario.setEhAdmin("sim".equals(req.getParameter("ehAdmin")));
                 if (campos.preenchido("anoFav")) {
-                    usuario.setAnoFav(campos.inteiro("anoFav"));
+                    usuario.setAnoFav(campos.inteiro("anoFav", "Ano favorito"));
+                    validaAnoFav(usuario.getAnoFav());
                 }
-                usuario.setCategoriaFav(campos.preenchido("categoriaFav") ? campos.texto("categoriaFav") : null);
+                if (campos.preenchido("categoriaFav")) {
+                    validaCategoria(campos.texto("categoriaFav"));
+                    usuario.setCategoriaFav(campos.texto("categoriaFav"));
+                }
                 if (campos.preenchido("userID")) {
-                    usuario.setUserID(campos.inteiro("userID"));
+                    usuario.setUserID(campos.inteiro("userID", "ID do usuário"));
                 }
                 dao.adiciona(usuario);
                 sucesso = true;
                 mensagem = "Usuário cadastrado com sucesso!";
             } else if ("alterar".equals(acao)) {
                 // só o ID é obrigatório: campo vazio mantém o valor salvo
-                Usuario usuario = dao.busca(campos.inteiro("userID"));
+                Usuario usuario = dao.busca(campos.inteiro("userID", "ID do usuário"));
                 if (usuario == null) {
                     mensagem = "Nenhum usuário encontrado com esse ID.";
                 } else {
                     boolean mudou = false;
                     // campos NOT NULL no banco: só trocam de valor, não podem ser apagados
                     if (campos.preenchido("pontosTotais")) {
-                        usuario.setPontosTotais(campos.inteiro("pontosTotais"));
+                        usuario.setPontosTotais(campos.inteiro("pontosTotais", "Pontos totais"));
+                        validaPontos(usuario.getPontosTotais());
                         mudou = true;
                     }
                     if (campos.preenchido("nomeReal")) {
+                        validaNomeReal(campos.texto("nomeReal"));
                         usuario.setNomeReal(campos.texto("nomeReal"));
                         mudou = true;
                     }
                     if (campos.preenchido("nickname")) {
-                        usuario.setNickname(campos.texto("nickname"));
+                        validaNickname(campos.texto("nickname"));
+                        usuario.setNickname(campos.texto("nickname").trim());
                         mudou = true;
                     }
                     if (campos.preenchido("email")) {
-                        usuario.setEmail(campos.texto("email"));
+                        validaEmail(campos.texto("email").trim());
+                        usuario.setEmail(campos.texto("email").trim());
                         mudou = true;
                     }
                     if (campos.preenchido("cidade")) {
+                        validaCidade(campos.texto("cidade"));
                         usuario.setCidade(campos.texto("cidade"));
                         mudou = true;
                     }
@@ -106,13 +157,15 @@ public class UsuarioServlet extends HttpServlet {
                         usuario.setAnoFav(0); // o DAO grava 0 como NULL
                         mudou = true;
                     } else if (campos.preenchido("anoFav")) {
-                        usuario.setAnoFav(campos.inteiro("anoFav"));
+                        usuario.setAnoFav(campos.inteiro("anoFav", "Ano favorito"));
+                        validaAnoFav(usuario.getAnoFav());
                         mudou = true;
                     }
                     if (campos.apagar("categoriaFav", "Categoria favorita")) {
                         usuario.setCategoriaFav(null);
                         mudou = true;
                     } else if (campos.preenchido("categoriaFav")) {
+                        validaCategoria(campos.texto("categoriaFav"));
                         usuario.setCategoriaFav(campos.texto("categoriaFav"));
                         mudou = true;
                     }
@@ -121,10 +174,17 @@ public class UsuarioServlet extends HttpServlet {
                         usuario.setSenha(campos.texto("senha"));
                         mudou = true;
                     }
-                    // checkbox de administrador: marcado promove; desmarcado mantém o valor salvo
-                    if (req.getParameter("ehAdmin") != null && !usuario.isEhAdmin()) {
-                        usuario.setEhAdmin(true);
-                        mudou = true;
+                    // administrador: "" mantém o valor salvo, "sim" promove, "nao" remove
+                    String ehAdmin = req.getParameter("ehAdmin");
+                    if ("sim".equals(ehAdmin) || "nao".equals(ehAdmin)) {
+                        boolean novo = "sim".equals(ehAdmin);
+                        Integer logado = (Integer) req.getSession().getAttribute("userID");
+                        Campos.exige(novo || logado == null || logado != usuario.getUserID(),
+                                "Você não pode remover seus próprios direitos de administrador.");
+                        if (novo != usuario.isEhAdmin()) {
+                            usuario.setEhAdmin(novo);
+                            mudou = true;
+                        }
                     }
 
                     if (!mudou) {
@@ -139,7 +199,7 @@ public class UsuarioServlet extends HttpServlet {
                     }
                 }
             } else if ("consultar".equals(acao)) {
-                Usuario usuario = dao.busca(campos.inteiro("userID"));
+                Usuario usuario = dao.busca(campos.inteiro("userID", "ID do usuário"));
                 if (usuario == null) {
                     mensagem = "Nenhum usuário encontrado com esse ID.";
                 } else {
@@ -149,7 +209,7 @@ public class UsuarioServlet extends HttpServlet {
                     detalhes = detalhesDe(usuario, fotoPerfil);
                 }
             } else if ("remover".equals(acao)) {
-                if (dao.remove(campos.inteiro("userID"))) {
+                if (dao.remove(campos.inteiro("userID", "ID do usuário"))) {
                     sucesso = true;
                     mensagem = "Usuário removido com sucesso!";
                 } else {
@@ -172,7 +232,8 @@ public class UsuarioServlet extends HttpServlet {
             mensagem = "Preencha os campos numéricos com valores válidos.";
         } catch (RuntimeException e) {
             // erros do banco, ex.: apelido ou e-mail duplicado
-            mensagem = "Erro no banco de dados: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+            log("Erro no banco de dados", e);
+            mensagem = Campos.mensagemBanco(e, "apelido ou e-mail", "Registro referenciado não existe.");
         }
 
         req.setAttribute("status", sucesso ? "sucesso" : "erro");

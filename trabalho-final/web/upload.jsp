@@ -15,7 +15,6 @@
     <jsp:useBean id="upl" scope="page" class="yeardle.UploadBeanSeguro" />
     <jsp:setProperty name="upl" property="diretorio" value="arquivos" />
     <jsp:setProperty name="upl" property="extensoesPermitidasPerfil" value="jpg,jpeg,png,gif,webp" />
-    <jsp:setProperty name="upl" property="extensoesPermitidasPartida" value="jpg,jpeg,png,gif,webp" />
     <jsp:setProperty name="upl" property="extensoesPermitidasJogo" value="jpg,jpeg,png,gif,webp" />
     <jsp:setProperty name="upl" property="size" value="5" />
 
@@ -46,13 +45,11 @@
         List<Usuario> usuarios = null;
         List<Jogo> jogos = null;
         Map<Integer, Upload> mapaPerfil = null;
-        Map<Integer, Upload> mapaPartida = null;
         Map<Integer, Upload> mapaJogo = null;
         try {
             usuarios = uDao.getLista();
             jogos = jDao.getLista();
             mapaPerfil = arqDao.mapaPorContexto("perfil");
-            mapaPartida = arqDao.mapaPorContexto("partida");
             mapaJogo = arqDao.mapaPorJogo();
         } finally {
             try { uDao.fechaConexao(); } catch (Exception ignored) {}
@@ -69,10 +66,6 @@
                 <% if (upl.getFilenamePerfil() != null) { %>
                     <li><strong>Foto de perfil:</strong> <%= escapa(upl.getFilenamePerfil()) %>
                         &mdash; <a href="usuario.jsp">Ver e baixar no contexto de Usuários</a></li>
-                <% } %>
-                <% if (upl.getFilenamePartida() != null) { %>
-                    <li><strong>Screenshot do desempenho no jogo:</strong> <%= escapa(upl.getFilenamePartida()) %>
-                        &mdash; <a href="usergame.jsp">Ver e baixar no contexto de Partidas</a></li>
                 <% } %>
                 <% if (upl.getFilenameJogo() != null) { %>
                     <li><strong>Foto marcante do ano (Dica Zero):</strong> <%= escapa(upl.getFilenameJogo()) %>
@@ -132,13 +125,13 @@
             </p>
 
             <p>
-                <label for="arquivoJogo"><strong>Arquivo 3 &mdash; Foto marcante do ano (Contexto: Jogos / Dica Zero):</strong></label><br>
+                <label for="arquivoJogo"><strong>Arquivo 2 &mdash; Foto marcante do ano (Contexto: Jogos / Dica Zero):</strong></label><br>
                 <input type="file" id="arquivoJogo" name="arquivoJogo" accept="image/*"><br>
                 <small>Formatos aceitos: <jsp:getProperty name="upl" property="extensoesPermitidasJogo" /></small>
             </p>
         </fieldset>
 
-        <p>Você pode enviar imagens de usuário, de jogo ou ambas ao mesmo tempo. O download fica disponível em seus respectivos contextos: <a href="usuario.jsp">Usuários</a> (foto de perfil), <a href="usergame.jsp">Partidas</a> (screenshot do desempenho) e <a href="jogo.jsp">Jogos</a> (foto marcante / Dica Zero).</p>
+        <p>Você pode enviar imagens de usuário, de jogo ou ambas ao mesmo tempo. O download fica disponível em seus respectivos contextos: <a href="usuario.jsp">Usuários</a> (foto de perfil) e <a href="jogo.jsp">Jogos</a> (foto marcante / Dica Zero).</p>
 
         <button type="submit">Enviar Imagens</button>
         <button type="reset">Limpar</button>
@@ -152,14 +145,12 @@
                     <th>ID</th>
                     <th>Apelido</th>
                     <th>Foto de Perfil</th>
-                    <th>Screenshot do Desempenho</th>
                 </tr>
             </thead>
             <tbody>
             <% if (usuarios != null && !usuarios.isEmpty()) {
                 for (Usuario u : usuarios) {
                     Upload p = mapaPerfil.get(u.getUserID());
-                    Upload g = mapaPartida.get(u.getUserID());
             %>
                 <tr>
                     <td><%= u.getUserID() %></td>
@@ -167,13 +158,6 @@
                     <td>
                         <% if (p != null) { %>
                             <a href="download?userID=<%= u.getUserID() %>&amp;contexto=perfil"><%= escapa(p.getNomeOriginal()) %></a>
-                        <% } else { %>
-                            <em>Não enviada</em>
-                        <% } %>
-                    </td>
-                    <td>
-                        <% if (g != null) { %>
-                            <a href="download?userID=<%= u.getUserID() %>&amp;contexto=partida"><%= escapa(g.getNomeOriginal()) %></a>
                         <% } else { %>
                             <em>Não enviada</em>
                         <% } %>

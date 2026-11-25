@@ -19,14 +19,14 @@
                 <textarea id="textoDica" name="textoDica" rows="3" cols="40" placeholder="Digite a dica"></textarea>
             </p>
             <p>
-                <label for="anoDica">Ano do jogo:</label>
-                <input type="number" id="anoDica" name="anoDica" min="1901" placeholder="Ex.: 1958">
-                <label class="apagar"><input type="checkbox" name="limpar" value="anoDica"> apagar valor salvo</label>
+                <label for="anoDica">Ano do jogo (obrigatório no cadastro):</label>
+                <input type="number" id="anoDica" name="anoDica" min="1901" placeholder="Ex.: 1958" required>
+                <label class="apagar"><input type="checkbox" name="limpar" value="anoDica"> apagar valor salvo (só ao alterar)</label>
             </p>
             <p>
                 <label for="categoria">Categoria:</label>
                 <select id="categoria" name="categoria">
-                    <option value="">(em branco)</option>
+                    <option value="">(escolha; obrigatória no cadastro)</option>
                     <option value="historia">História</option>
                     <option value="cinema">Cinema</option>
                     <option value="literatura">Literatura</option>
@@ -34,18 +34,16 @@
                     <option value="ciencias">Ciências</option>
                     <option value="esportes">Esportes</option>
                 </select>
-                <label class="apagar"><input type="checkbox" name="limpar" value="categoria"> apagar valor salvo</label>
             </p>
         </fieldset>
 
         <p>O ID é obrigatório para alterar, consultar e remover. Para alterar, informe o ID e apenas os campos que quiser mudar
-            (campo em branco mantém o valor salvo). Para deixar o ano vazio no banco, marque "apagar valor salvo";
-            o texto é obrigatório e não pode ser apagado.</p>
+            (campo em branco mantém o valor salvo). Para deixar o ano vazio no banco ao alterar, marque "apagar valor salvo"; no cadastro o ano e o texto são obrigatórios.</p>
 
         <button type="submit" name="acao" value="cadastrar">Cadastrar</button>
-        <button type="submit" name="acao" value="alterar">Alterar</button>
-        <button type="submit" name="acao" value="consultar">Consultar</button>
-        <button type="submit" name="acao" value="remover">Remover</button>
+        <button type="submit" name="acao" value="alterar" formnovalidate>Alterar</button>
+        <button type="submit" name="acao" value="consultar" formnovalidate>Consultar</button>
+        <button type="submit" name="acao" value="remover" formnovalidate>Remover</button>
         <button type="submit" name="acao" value="listar" formnovalidate>Listar todos</button>
         <button type="reset">Limpar</button>
     </form>

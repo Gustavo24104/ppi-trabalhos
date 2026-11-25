@@ -58,16 +58,19 @@ public class JogoServlet extends HttpServlet {
         try {
             if ("cadastrar".equals(acao)) {
                 Jogo jogo = new Jogo();
-                jogo.setAno(campos.inteiro("ano"));
+                jogo.setAno(campos.inteiro("ano", "Ano"));
+                validaAno(jogo.getAno());
+                Campos.exige(dao.busca(jogo.getAno()) == null, "Já existe um jogo com esse ano.");
                 if (campos.preenchido("dataJogada")) {
                     jogo.setDataJogada(converteData(campos.texto("dataJogada")));
+                    validaDataLivre(jogo);
                 }
                 dao.adiciona(jogo);
                 sucesso = true;
                 mensagem = "Jogo cadastrado com sucesso!";
             } else if ("alterar".equals(acao)) {
                 // só o ano é obrigatório: campo vazio mantém o valor salvo
-                Jogo jogo = dao.busca(campos.inteiro("ano"));
+                Jogo jogo = dao.busca(campos.inteiro("ano", "Ano"));
                 if (jogo == null) {
                     mensagem = "Nenhum jogo encontrado com esse ano.";
                 } else {
@@ -77,6 +80,7 @@ public class JogoServlet extends HttpServlet {
                         mudou = true;
                     } else if (campos.preenchido("dataJogada")) {
                         jogo.setDataJogada(converteData(campos.texto("dataJogada")));
+                        validaDataLivre(jogo);
                         mudou = true;
                     }
 
@@ -92,7 +96,7 @@ public class JogoServlet extends HttpServlet {
                     }
                 }
             } else if ("consultar".equals(acao)) {
-                Jogo jogo = dao.busca(campos.inteiro("ano"));
+                Jogo jogo = dao.busca(campos.inteiro("ano", "Ano"));
                 if (jogo == null) {
                     mensagem = "Nenhum jogo encontrado com esse ano.";
                 } else {
@@ -102,7 +106,7 @@ public class JogoServlet extends HttpServlet {
                     detalhes = detalhesDe(jogo, fotoJogo);
                 }
             } else if ("remover".equals(acao)) {
-                if (dao.remove(campos.inteiro("ano"))) {
+                if (dao.remove(campos.inteiro("ano", "Ano"))) {
                     sucesso = true;
                     mensagem = "Jogo removido com sucesso!";
                 } else {
@@ -123,10 +127,11 @@ public class JogoServlet extends HttpServlet {
             mensagem = e.getMessage();
         } catch (IllegalArgumentException e) {
             // NumberFormatException (ano) e data invalida
-            mensagem = "Preencha os campos com valores válidos.";
+            mensagem = "Preencha os campos com valores válidos (data no formato aaaa-mm-dd).";
         } catch (RuntimeException e) {
             // erros do banco, ex.: ano duplicado ou fora da regra (ano > 1900)
-            mensagem = "Erro no banco de dados: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+            log("Erro no banco de dados", e);
+            mensagem = Campos.mensagemBanco(e, "ano", "Registro referenciado não existe.");
         }
 
         req.setAttribute("status", sucesso ? "sucesso" : "erro");
@@ -136,6 +141,17 @@ public class JogoServlet extends HttpServlet {
         req.setAttribute("lista", lista);
         req.setAttribute("paginaVoltar", "jogo.jsp");
         req.getRequestDispatcher("roteador.jsp").forward(req, resp);
+    }
+
+    private static void validaAno(int ano) {
+        int atual = java.time.LocalDate.now().getYear();
+        Campos.exige(ano > 1900 && ano <= atual, "O ano deve estar entre 1901 e " + atual + ".");
+    }
+
+    // um jogo por dia: a data nao pode ja pertencer a outro jogo
+    private void validaDataLivre(Jogo jogo) {
+        Jogo outro = dao.buscaPorDataJogada(jogo.getDataJogada());
+        Campos.exige(outro == null || outro.getAno() == jogo.getAno(), "Já existe um jogo (ano " + (outro == null ? "" : outro.getAno()) + ") nessa data.");
     }
 
     // campos do jogo para a tabela da página de sucesso
@@ -149,8 +165,11 @@ public class JogoServlet extends HttpServlet {
 
     // "aaaa-mm-dd" do input date para Calendar
     private static Calendar converteData(String data) {
+        if (!data.trim().matches("\\d{4}-\\d{2}-\\d{2}")) {
+            throw new Campos.CampoInvalidoException("Data jogada inválida: use o formato aaaa-mm-dd.");
+        }
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(Date.valueOf(data));
+        calendar.setTime(Date.valueOf(data.trim()));
         return calendar;
     }
 }

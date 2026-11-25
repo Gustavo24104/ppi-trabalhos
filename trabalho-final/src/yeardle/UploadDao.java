@@ -96,7 +96,7 @@ public class UploadDao {
         }
     }
 
-    // Mapeia userID -> Upload para um dado contexto ("perfil" ou "partida")
+    // Mapeia userID -> Upload para um dado contexto ("perfil" ou "jogo")
     public Map<Integer, Upload> mapaPorContexto(String contexto) {
         String sql = "SELECT * FROM upload WHERE contexto=? ORDER BY userID";
         try {

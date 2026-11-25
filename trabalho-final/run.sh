@@ -18,6 +18,8 @@ APP=$TOMCAT/webapps/trabalhoFinal
 mkdir -p "$APP/WEB-INF/classes"
 cp web/*.jsp "$APP/"
 cp web/game/*.jsp "$APP/"
+mkdir -p "$APP/arquivos"
+cp -r web/arquivos "$APP/"
 cp -r web/WEB-INF/lib "$APP/WEB-INF/"
 cp web/WEB-INF/web.xml "$APP/WEB-INF/"
 #javac -encoding UTF-8 -d "$APP/WEB-INF/classes" -cp "$TOMCAT/lib/servlet-api.jar" src/*.java

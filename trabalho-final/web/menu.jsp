@@ -6,4 +6,5 @@
     <a href="dica.jsp">Dicas</a>
     <a href="usergame.jsp">Partidas (UserGame)</a>
     <a href="upload.jsp">Upload de Arquivos</a>
+    <a href="logout">Sair</a>
 </nav>

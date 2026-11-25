@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -23,8 +26,41 @@ public class DownloadServlet extends HttpServlet {
         String anoParam = req.getParameter("ano");
         String nameParam = req.getParameter("fileName");
         String contexto = req.getParameter("contexto");
+        String dataParam = req.getParameter("data");
 
-        boolean contextoValido = "perfil".equals(contexto) || "partida".equals(contexto) || "jogo".equals(contexto);
+        boolean ehAdmin = Boolean.TRUE.equals(req.getSession().getAttribute("ehAdmin"));
+        // jogadores nao podem usar "ano" (vazaria a resposta na URL); devem usar "data"
+        if ("jogo".equals(contexto) && (anoParam != null || nameParam != null) && !ehAdmin) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Acesso negado.");
+            return;
+        }
+        if ("jogo".equals(contexto) && dataParam != null) {
+            LocalDate d;
+            try {
+                d = LocalDate.parse(dataParam);
+            } catch (Exception e) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Data inválida.");
+                return;
+            }
+            if (d.isAfter(LocalDate.now())) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Jogo não disponível.");
+                return;
+            }
+            JogoDao jd = new JogoDao();
+            Jogo jogo;
+            try {
+                jogo = jd.buscaPorDataJogada(new GregorianCalendar(d.getYear(), d.getMonthValue() - 1, d.getDayOfMonth()));
+            } finally {
+                try { jd.fechaConexao(); } catch (Exception ignored) {}
+            }
+            if (jogo == null) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Jogo não encontrado.");
+                return;
+            }
+            anoParam = String.valueOf(jogo.getAno());
+        }
+
+        boolean contextoValido = "perfil".equals(contexto) || "jogo".equals(contexto);
         if (!contextoValido || (userIdParam == null && anoParam == null && nameParam == null)) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parâmetros de download inválidos.");
             return;
@@ -52,7 +88,7 @@ public class DownloadServlet extends HttpServlet {
 
         String descricaoContexto = "perfil".equals(contexto)
                 ? "foto de perfil"
-                : ("partida".equals(contexto) ? "screenshot do desempenho no jogo" : "foto marcante do ano");
+                : "foto marcante do ano";
 
         UploadDao dao = new UploadDao();
         Upload arquivo;
@@ -95,6 +131,12 @@ public class DownloadServlet extends HttpServlet {
         }
 
         String nomeOriginal = arquivo.getNomeOriginal();
+        if ("jogo".equals(contexto) && !ehAdmin) {
+            // o nome do arquivo pode conter o ano (resposta): jogadores recebem um nome neutro
+            String nomeSalvo = arquivo.getNomeSalvo();
+            int ponto = nomeSalvo.lastIndexOf('.');
+            nomeOriginal = "foto" + (ponto >= 0 ? nomeSalvo.substring(ponto) : "");
+        }
         String nomeCodificado = URLEncoder.encode(nomeOriginal, StandardCharsets.UTF_8.name()).replace("+", "%20");
         String disposicao = "inline".equals(req.getParameter("modo")) ? "inline" : "attachment";
 

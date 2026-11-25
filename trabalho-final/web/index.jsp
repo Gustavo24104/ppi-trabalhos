@@ -12,7 +12,7 @@
         <li><strong><a href="jogo.jsp">Jogos</a>:</strong> cadastro de anos-alvo, datas jogadas e categorias.</li>
         <li><strong><a href="dica.jsp">Dicas</a>:</strong> pistas vinculadas a cada ano cadastrado em jogo.</li>
         <li><strong><a href="usergame.jsp">Partidas (UserGame)</a>:</strong> registro de pontuação por usuário e ano.</li>
-        <li><strong><a href="upload.jsp">Upload de Arquivos</a>:</strong> envio da foto de perfil e do screenshot de desempenho no jogo por usuário.</li>
+        <li><strong><a href="upload.jsp">Upload de Arquivos</a>:</strong> envio da foto de perfil por usuário e da foto marcante de cada ano.</li>
     </ul>
 </main>
 

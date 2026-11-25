@@ -11,65 +11,50 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.*;
-import java.util.random.RandomGenerator;
+import java.time.*;
 
 
 @WebServlet("/jogar")
 public class GameServelet extends HttpServlet {
-    UserGameDao ugd = new UserGameDao();
-    UsuarioDao ud = new UsuarioDao();
-    JogoDao jd = new JogoDao();
-    DicaDao dd = new DicaDao();
-    Jogo jogoAtual;
-    List<Dica> dicasAtuas;
     private final int MAX_TENTATIVAS = 5;
 
-//    @Override
-    public void init() {
-        getJogoAtual();
-//        tentativas = 1;
+    // copia o progresso do banco para a sessao (so como cache para o game.jsp)
+    static void poeNaSessao(HttpSession session, Progresso p) {
+        session.setAttribute("tentativas", p.getTentativas());
+        session.setAttribute("dicasReveladas", p.getDicasReveladas());
+        session.setAttribute("chutes", p.getChutes());
     }
 
-    public void getJogoAtual() {
-        Calendar hoje = Calendar.getInstance();
-        jogoAtual = jd.buscaPorDataJogada(Calendar.getInstance());
-        boolean mesmoDia = jogoAtual != null && hoje.get(Calendar.DAY_OF_YEAR) == jogoAtual.getDataJogada().get(Calendar.DAY_OF_YEAR) &&
-                hoje.get(Calendar.YEAR) == jogoAtual.getDataJogada().get(Calendar.YEAR);
+    static void limpaJogoDaSessao(HttpSession session) {
+        session.removeAttribute("tentativas");
+        session.removeAttribute("jogoAtual");
+        session.removeAttribute("dicasReveladas");
+        session.removeAttribute("chutes");
+    }
 
-        if (mesmoDia && dicasAtuas != null) {
-            return;
-        }
+    // converte LocalDate <-> Calendar
+    private Calendar paraCalendar(LocalDate d) {
+        return GregorianCalendar.from(d.atStartOfDay(ZoneId.systemDefault()));
+    }
 
-        if(jogoAtual == null) {
+    private LocalDate paraLocalDate(Calendar c) {
+        return Instant.ofEpochMilli(c.getTimeInMillis()).atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    // busca o jogo da data; so para hoje, se nao existir, sorteia um jogo ainda sem data
+    // (synchronized para dois usuarios nao sortearem jogos diferentes ao mesmo tempo)
+    private synchronized Jogo buscaJogo(JogoDao jd, LocalDate data, LocalDate hoje) {
+        Jogo jogo = jd.buscaPorDataJogada(paraCalendar(data));
+        if (jogo == null && data.equals(hoje)) {
             List<Jogo> candidatos = jd.getNaoJogados();
-            Random rng = new Random();
-            // se nao tiver nenhum pra hoje, ja escolhe um jogo aleatório pra jogar
-            jogoAtual = candidatos.get(rng.nextInt(candidatos.size()));
-            jogoAtual.setDataJogada(Calendar.getInstance());
-            jd.altera(jogoAtual);
+            if (candidatos.isEmpty()) {
+                return null;
+            }
+            jogo = candidatos.get(new Random().nextInt(candidatos.size()));
+            jogo.setDataJogada(paraCalendar(hoje));
+            jd.altera(jogo);
         }
-        dicasAtuas = dd.buscaPorJogo(jogoAtual.getAno());
-    }
-
-
-
-    @Override
-    public void destroy() {
-        try {
-            ugd.fechaConexao();
-        } catch (Exception e) {
-            log("Erro ao fechar a conexao de UserGameDao", e);
-        }
-        try {
-            ud.fechaConexao();
-        } catch (Exception e) {
-            log("Erro ao fechar a conexao de UsuarioDao", e);
-        }
-        try {
-            jd.fechaConexao();
-        } catch (Exception e) {
-            log("Erro ao fechar a conexao de JogoDao", e);
-        }
+        return jogo;
     }
 
     @Override
@@ -79,26 +64,45 @@ public class GameServelet extends HttpServlet {
         super.service(req, resp);
     }
 
-    private void salvaPerformance(HttpSession session) {
-        int points = 4000 - 1000 * (Integer) session.getAttribute("dicasReveladas");
+    private void salvaPerformance(HttpSession session, Jogo jogoAtual, boolean ganhou, int rev) {
+        // derrota vale 0; vitoria sempre vale pelo menos 500 (assim pontuacao != 0 indica vitoria)
+        int points = 0;
+        if (ganhou) {
+            points = Math.max(4000 - 1000 * rev, 500);
+        }
         session.setAttribute("pontuacao", points);
 
         int userID = (Integer) session.getAttribute("userID");
 
-        // evita salvar/somar duas vezes a mesma partida
-        if (ugd.busca(userID, jogoAtual.getAno()) != null) {
-            return;
+        UserGameDao ugd = new UserGameDao();
+        UsuarioDao ud = new UsuarioDao();
+        try {
+            // evita salvar/somar duas vezes a mesma partida
+            if (ugd.busca(userID, jogoAtual.getAno()) != null) {
+                return;
+            }
+
+            UserGame ug = new UserGame();
+            ug.setAno(jogoAtual.getAno());
+            ug.setPontuacao(points);
+            ug.setUserID(userID);
+
+            try {
+                ugd.adiciona(ug);
+            } catch (RuntimeException e) {
+                // chave duplicada (envio duplo): ja foi salvo, nao soma de novo
+                if (ugd.busca(userID, jogoAtual.getAno()) != null) {
+                    return;
+                }
+                throw e;
+            }
+
+            // soma na pontuacao geral do usuario
+            ud.somaPontos(userID, points);
+        } finally {
+            try { ugd.fechaConexao(); } catch (Exception ignored) {}
+            try { ud.fechaConexao(); } catch (Exception ignored) {}
         }
-
-        UserGame ug = new UserGame();
-        ug.setAno(jogoAtual.getAno());
-        ug.setPontuacao(points);
-        ug.setUserID(userID);
-
-        ugd.adiciona(ug);
-
-        // soma na pontuacao geral do usuario
-        ud.somaPontos(userID, points);
     }
 
     @Override
@@ -112,49 +116,81 @@ public class GameServelet extends HttpServlet {
         }
 
         Jogo jogoAtual = (Jogo) session.getAttribute("jogoAtual");
-        Integer tentativas = (Integer) session.getAttribute("tentativas");
+        String dataSessao = (String) session.getAttribute("dataSelecionada");
 
-        if (jogoAtual == null || tentativas == null) {
+        if (jogoAtual == null || dataSessao == null) {
             resp.sendRedirect("jogar");
             return;
         }
 
-        int guess = Integer.parseInt(req.getParameter("guess"));
-        tentativas++;
-        session.setAttribute("tentativas", tentativas);
-
-
-        // TODO: melhorar logica (adicionar usuario à sessao eu acho e evitar o cara de jogar dnv)
-        if (guess == jogoAtual.getAno()) { // ganhou
-
-            // salva no BD
-            salvaPerformance(session);
-
-            session.removeAttribute("tentativas");
-            session.removeAttribute("jogoAtual");
-            session.removeAttribute("dicasReveladas");
-
-            resp.sendRedirect("ganhou.jsp");
+        // confere se o chute e do jogo atual da sessao (outra aba pode ter trocado o dia)
+        String dataForm = req.getParameter("data");
+        if (dataForm == null || !dataForm.trim().equals(dataSessao)) {
+            resp.sendRedirect("jogar");
             return;
         }
 
-        if (tentativas >= MAX_TENTATIVAS) {
-            salvaPerformance(session);
+        int userID = (Integer) session.getAttribute("userID");
+        int ano = jogoAtual.getAno();
 
-            session.setAttribute("anoCorreto", jogoAtual.getAno());
-            session.removeAttribute("tentativas");
-            session.removeAttribute("jogoAtual");
-            session.removeAttribute("dicasReveladas");
-
-            resp.sendRedirect("perdeu.jsp");
+        // valida o chute (sem gastar tentativa se for invalido)
+        int guess = 0;
+        boolean valido = true;
+        try {
+            guess = Integer.parseInt(req.getParameter("guess").trim());
+        } catch (Exception e) {
+            valido = false;
+        }
+        if (valido && (guess < 1901 || guess > LocalDate.now().getYear())) {
+            valido = false;
+        }
+        if (!valido) {
+            session.setAttribute("mensagemChute", "Chute inválido: digite um ano inteiro entre 1901 e " + LocalDate.now().getYear() + ".");
+            resp.sendRedirect("jogar");
             return;
         }
 
-        int atual = ((Integer) session.getAttribute("dicasReveladas") != null) ?
-                (Integer) session.getAttribute("dicasReveladas") : 0;
+        ProgressoDao pd = new ProgressoDao();
+        try {
+            Progresso prog = pd.busca(userID, ano);
+            if (prog == null) {
+                prog = new Progresso();
+            }
 
-        session.setAttribute("dicasReveladas", atual + 1);
-        resp.sendRedirect("jogar");
+            prog.setTentativas(prog.getTentativas() + 1);
+            prog.setChutes(prog.getChutes().isEmpty() ? String.valueOf(guess) : prog.getChutes() + "," + guess);
+
+            // limpa resultado antigo
+            session.removeAttribute("pontuacao");
+            session.removeAttribute("anoCorreto");
+
+            if (guess == ano) { // ganhou
+                salvaPerformance(session, jogoAtual, true, prog.getDicasReveladas());
+                session.setAttribute("anoCorreto", ano);
+                limpaJogoDaSessao(session);
+                pd.remove(userID, ano);
+                resp.sendRedirect("ganhou.jsp");
+                return;
+            }
+
+            if (prog.getTentativas() >= MAX_TENTATIVAS) {
+                salvaPerformance(session, jogoAtual, false, prog.getDicasReveladas());
+                session.setAttribute("anoCorreto", ano);
+                limpaJogoDaSessao(session);
+                pd.remove(userID, ano);
+                resp.sendRedirect("perdeu.jsp");
+                return;
+            }
+
+            // errou: revela mais uma dica
+            prog.setDicasReveladas(prog.getDicasReveladas() + 1);
+            pd.salva(userID, ano, prog);
+            poeNaSessao(session, prog);
+            session.setAttribute("mensagemChute", "Você chutou " + guess + " — errou!");
+            resp.sendRedirect("jogar");
+        } finally {
+            try { pd.fechaConexao(); } catch (Exception ignored) {}
+        }
     }
 
     @Override
@@ -167,31 +203,115 @@ public class GameServelet extends HttpServlet {
             return;
         }
 
-        getJogoAtual();
-        // Inicializa a partida na sessão se ainda não existir
-        if (session.getAttribute("jogoAtual") == null) {
-            session.setAttribute("jogoAtual", jogoAtual);
-            session.setAttribute("dicasReveladas", 0);
-            session.setAttribute("tentativas", 0);
+        JogoDao jd = new JogoDao();
+        UserGameDao ugd = new UserGameDao();
+        try {
+            tratarGet(req, resp, session, jd, ugd);
+        } finally {
+            try { jd.fechaConexao(); } catch (Exception ignored) {}
+            try { ugd.fechaConexao(); } catch (Exception ignored) {}
         }
+    }
 
-        // se ja jogou (ent ta no leaderboard)
-        Integer i = (Integer) session.getAttribute("userID");
-        UserGame encontrado = i != null ? ugd.busca(i, jogoAtual.getAno()) : null;
-        if(encontrado != null) {
-            // entao nao joga denovo
-            session.setAttribute("pontuacao", encontrado.getPontuacao());
-            session.removeAttribute("tentativas");
-            session.removeAttribute("jogoAtual");
-            session.removeAttribute("dicasReveladas");
+    private void tratarGet(HttpServletRequest req, HttpServletResponse resp, HttpSession session,
+                           JogoDao jd, UserGameDao ugd) throws ServletException, IOException {
+        LocalDate hoje = LocalDate.now();
+        String mensagem = null;
+        LocalDate data = null;
+        Jogo jogo = null;
 
-            if(encontrado.getPontuacao() != 0) {
-                resp.sendRedirect("ganhou.jsp");
+        // "Jogar outro dia": vai para o dia mais recente ainda nao jogado
+        if ("1".equals(req.getParameter("proximo"))) {
+            int uid = (Integer) session.getAttribute("userID");
+            // garante que o jogo de hoje exista (sorteia) antes de procurar
+            buscaJogo(jd, hoje, hoje);
+            LocalDate prox = jd.proximaDataNaoJogada(uid, hoje);
+            if (prox != null) {
+                resp.sendRedirect("jogar?data=" + prox);
             } else {
-                resp.sendRedirect("perdeu.jsp");
+                session.setAttribute("mensagemTodosJogados", "Você já jogou todos os dias disponíveis!");
+                resp.sendRedirect("jogar?data=" + hoje);
             }
             return;
         }
+
+        // data pedida: parametro "data" ou a que ja estava na sessao
+        String param = req.getParameter("data");
+        String pedida = (param != null && !param.isBlank()) ? param.trim() : (String) session.getAttribute("dataSelecionada");
+        if (pedida != null) {
+            try {
+                data = LocalDate.parse(pedida);
+            } catch (Exception e) {
+                if (param != null) mensagem = "Data inválida. Mostrando o jogo de hoje.";
+            }
+        }
+        if (data != null && data.isAfter(hoje)) {
+            mensagem = "Você não pode jogar o jogo de um dia futuro. Mostrando o jogo de hoje.";
+            data = null;
+        }
+        if (data != null) {
+            jogo = buscaJogo(jd, data, hoje);
+            if (jogo == null) {
+                if (param != null) mensagem = "Não existe jogo na data " + data.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ". Mostrando o jogo de hoje.";
+                data = null;
+            }
+        }
+        if (data == null) {
+            data = hoje;
+            jogo = buscaJogo(jd, hoje, hoje);
+        }
+
+        Calendar menor = jd.menorDataJogada();
+        req.setAttribute("dataMin", paraLocalDate(menor != null ? menor : paraCalendar(hoje)).toString());
+        req.setAttribute("dataMax", hoje.toString());
+        req.setAttribute("dataSelecionada", data.toString());
+        req.setAttribute("dataBr", data.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        if (mensagem != null) {
+            req.setAttribute("mensagemData", mensagem);
+        }
+        Object todos = session.getAttribute("mensagemTodosJogados");
+        if (todos != null) {
+            session.removeAttribute("mensagemTodosJogados");
+            req.setAttribute("mensagemData", todos);
+        }
+
+        if (jogo == null) {
+            // nao ha jogo nem para hoje
+            session.removeAttribute("jogoAtual");
+            req.setAttribute("mensagemData", "Não há jogo disponível para hoje.");
+            req.getRequestDispatcher("game.jsp").forward(req, resp);
+            return;
+        }
+
+        session.setAttribute("dataSelecionada", data.toString());
+
+        // se ja jogou (ent ta no leaderboard)
+        int userID = (Integer) session.getAttribute("userID");
+        UserGame encontrado = ugd.busca(userID, jogo.getAno());
+        if (encontrado != null) {
+            // entao nao joga denovo
+            session.setAttribute("pontuacao", encontrado.getPontuacao());
+            session.setAttribute("anoCorreto", jogo.getAno());
+            limpaJogoDaSessao(session);
+
+            // mostra o game.jsp em modo "ja jogou" (com o calendario para escolher outro dia)
+            req.setAttribute("jogoJogado", jogo);
+            req.setAttribute("pontuacaoJogada", encontrado.getPontuacao());
+            req.getRequestDispatcher("game.jsp").forward(req, resp);
+            return;
+        }
+
+        // jogo jogavel: limpa resultado antigo e carrega o progresso do banco
+        session.removeAttribute("pontuacao");
+        session.removeAttribute("anoCorreto");
+        ProgressoDao pd = new ProgressoDao();
+        try {
+            Progresso prog = pd.busca(userID, jogo.getAno());
+            poeNaSessao(session, prog != null ? prog : new Progresso());
+        } finally {
+            try { pd.fechaConexao(); } catch (Exception ignored) {}
+        }
+        session.setAttribute("jogoAtual", jogo);
 
         req.getRequestDispatcher("game.jsp").forward(req, resp);
     }

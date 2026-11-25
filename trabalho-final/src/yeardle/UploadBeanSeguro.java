@@ -22,13 +22,11 @@ public class UploadBeanSeguro implements Serializable {
     private String diretorio = "arquivos";
     private int size = 5;
     private String extensoesPermitidasPerfil = "jpg,jpeg,png,gif,webp";
-    private String extensoesPermitidasPartida = "jpg,jpeg,png,gif,webp";
     private String extensoesPermitidasJogo = "jpg,jpeg,png,gif,webp";
 
     private int userID;
     private int ano;
     private String filenamePerfil;
-    private String filenamePartida;
     private String filenameJogo;
     private String erro = null;
     private String mensagemSucesso = null;
@@ -60,14 +58,6 @@ public class UploadBeanSeguro implements Serializable {
         this.extensoesPermitidasPerfil = extensoesPermitidasPerfil;
     }
 
-    public String getExtensoesPermitidasPartida() {
-        return extensoesPermitidasPartida;
-    }
-
-    public void setExtensoesPermitidasPartida(String extensoesPermitidasPartida) {
-        this.extensoesPermitidasPartida = extensoesPermitidasPartida;
-    }
-
         public String getExtensoesPermitidasJogo() {
         return extensoesPermitidasJogo;
     }
@@ -94,10 +84,6 @@ public class UploadBeanSeguro implements Serializable {
 
     public String getFilenamePerfil() {
         return filenamePerfil;
-    }
-
-    public String getFilenamePartida() {
-        return filenamePartida;
     }
 
      public String getFilenameJogo() {
@@ -159,7 +145,7 @@ public class UploadBeanSeguro implements Serializable {
                     }
                 } else if (item.getName() != null && !item.getName().isBlank()) {
                     String fn = item.getFieldName();
-                    if ("arquivoPerfil".equals(fn) || "arquivoPartida".equals(fn)) {
+                    if ("arquivoPerfil".equals(fn)) {
                         temArquivoUsuario = true;
                     } else if ("arquivoJogo".equals(fn)) {
                         temArquivoJogo = true;
@@ -168,14 +154,14 @@ public class UploadBeanSeguro implements Serializable {
             }
 
             if (!temArquivoUsuario && !temArquivoJogo) {
-                setErro("Selecione ao menos uma imagem (Foto de perfil, Screenshot do desempenho ou Foto marcante do ano) para enviar.");
+                setErro("Selecione ao menos uma imagem (Foto de perfil ou Foto marcante do ano) para enviar.");
                 return false;
             }
 
             Usuario usuario = null;
             if (temArquivoUsuario) {
                 if (userIdStr == null || userIdStr.isBlank()) {
-                    setErro("Selecione um usuário válido para vincular as imagens de perfil/partida.");
+                    setErro("Selecione um usuário válido para vincular as foto de perfil.");
                     return false;
                 }
                 try {
@@ -233,10 +219,6 @@ public class UploadBeanSeguro implements Serializable {
                         contexto = "perfil";
                         rotuloContexto = "Foto de perfil";
                         extensoesContexto = extensoesPermitidasPerfil;
-                    } else if ("arquivoPartida".equals(fieldName)) {
-                        contexto = "partida";
-                        rotuloContexto = "Screenshot do desempenho no jogo";
-                        extensoesContexto = extensoesPermitidasPartida;
                     } else if ("arquivoJogo".equals(fieldName)) {
                         contexto = "jogo";
                         rotuloContexto = "Foto marcante do ano (Dica Zero)";
@@ -292,8 +274,6 @@ public class UploadBeanSeguro implements Serializable {
 
                     if ("perfil".equals(contexto)) {
                         this.filenamePerfil = nomeOriginal;
-                    } else if ("partida".equals(contexto)) {
-                        this.filenamePartida = nomeOriginal;
                     } else {
                         this.filenameJogo = nomeOriginal;
                     }

@@ -18,27 +18,46 @@ import java.util.random.RandomGenerator;
 public class GameDicaServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        req.setCharacterEncoding("UTF-8");
         HttpSession session = req.getSession(false);
-        if (session != null && session.getAttribute("jogoAtual") != null) {
+        if (session != null && session.getAttribute("userID") != null && session.getAttribute("jogoAtual") != null) {
             Jogo jogoAtual = (Jogo) session.getAttribute("jogoAtual");
-            Integer rev = (Integer) session.getAttribute("dicasReveladas");
-            Integer tentativas = (Integer) session.getAttribute("tentativas");
-            tentativas++;
-            session.setAttribute("tentativas", tentativas);
+            String dataSessao = (String) session.getAttribute("dataSelecionada");
 
-            DicaDao dd = new DicaDao();
-            List<Dica> dicas = dd.buscaPorJogo(jogoAtual.getAno());
-
-            try {
-                dd.fechaConexao();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            // confere se o pedido e do jogo atual da sessao (outra aba pode ter trocado o dia)
+            String dataForm = req.getParameter("data");
+            if (dataSessao == null || dataForm == null || !dataForm.trim().equals(dataSessao)) {
+                resp.sendRedirect("jogar");
+                return;
             }
 
-            int atual = (rev != null) ? rev : 0;
+            int userID = (Integer) session.getAttribute("userID");
+            int ano = jogoAtual.getAno();
 
-            if (atual < dicas.size()) {
-                session.setAttribute("dicasReveladas", atual + 1);
+            List<Dica> dicas;
+            DicaDao dd = new DicaDao();
+            try {
+                dicas = dd.buscaPorJogo(ano);
+            } finally {
+                try { dd.fechaConexao(); } catch (SQLException ignored) {}
+            }
+
+            ProgressoDao pd = new ProgressoDao();
+            try {
+                Progresso prog = pd.busca(userID, ano);
+                if (prog == null) {
+                    prog = new Progresso();
+                }
+
+                // so gasta tentativa se ainda ha dica e sobra tentativa para chutar depois
+                if (prog.getDicasReveladas() < dicas.size() && prog.getTentativas() + 1 < 5) {
+                    prog.setDicasReveladas(prog.getDicasReveladas() + 1);
+                    prog.setTentativas(prog.getTentativas() + 1);
+                    pd.salva(userID, ano, prog);
+                }
+                GameServelet.poeNaSessao(session, prog);
+            } finally {
+                try { pd.fechaConexao(); } catch (SQLException ignored) {}
             }
         }
         resp.sendRedirect("jogar");

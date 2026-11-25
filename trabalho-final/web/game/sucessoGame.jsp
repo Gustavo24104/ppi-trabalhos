@@ -22,6 +22,7 @@
 <jsp:include page="navGame.jsp" />
 
 <main>
+    <h2>Leaderboard</h2>
     <% if (detalhes != null && !detalhes.isEmpty()) { %>
         <table>
             <tbody>
@@ -50,17 +51,7 @@
                     <tr>
                         <% for (String valor : linha.values()) { %>
                             <td>
-                                <%
-                                    String v = (valor != null) ? valor.toLowerCase() : "";
-                                    if (v.endsWith(".png") || v.endsWith(".gif") ||
-                                        v.endsWith(".jpeg") || v.endsWith(".jpg") || v.endsWith(".webp")) {
-                                %>
-                                    <img src="download?fileName=<%=valor%>&amp;contexto=partida&amp;modo=inline"
-                                         alt="Screenshot de desempenho"
-                                         style="width: 60px; height: 36px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 8px;">
-                                <% } else { %>
-                                    <%= (valor != null) ? escapa(valor) : "" %>
-                                <% } %>
+                                <%= (valor != null) ? escapa(valor) : "" %>
                             </td>
                         <% } %>
                     </tr>
@@ -70,7 +61,7 @@
         </div>
     <% } %>
 
-    <p><a href="<%= paginaVoltar != null ? paginaVoltar : "index.jsp" %>">Voltar ao formulário</a></p>
+    <p><a href="jogar">Voltar ao jogo</a></p>
 </main>
 
-<jsp:include page="footer.jsp" />
+<jsp:include page="footerGame.jsp" />

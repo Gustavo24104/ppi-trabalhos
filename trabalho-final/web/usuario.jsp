@@ -38,7 +38,11 @@
             </p>
             <p>
                 <label for="ehAdmin">Administrador:</label>
-                <input type="checkbox" id="ehAdmin" name="ehAdmin" value="1">
+                <select id="ehAdmin" name="ehAdmin">
+                    <option value="">— manter —</option>
+                    <option value="sim">Sim</option>
+                    <option value="nao">Não</option>
+                </select>
             </p>
             <p>
                 <label for="cidade">Cidade:</label>

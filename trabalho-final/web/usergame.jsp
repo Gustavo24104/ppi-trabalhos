@@ -44,21 +44,6 @@
         <button type="submit" name="acao" value="listar" formnovalidate>Listar todos</button>
         <button type="reset">Limpar</button>
     </form>
-
-    <%
-        UsuarioDao usuarioDao = new UsuarioDao();
-        UploadDao arquivoDao = new UploadDao();
-        List<Usuario> usuarios = null;
-        Map<Integer, Upload> arquivosPartida = null;
-        try {
-            usuarios = usuarioDao.getLista();
-            arquivosPartida = arquivoDao.mapaPorContexto("partida");
-        } finally {
-            try { usuarioDao.fechaConexao(); } catch (Exception ignored) {}
-            try { arquivoDao.fechaConexao(); } catch (Exception ignored) {}
-        }
-    %>
-
 </main>
 
 <jsp:include page="footer.jsp" />

@@ -37,6 +37,18 @@ public class DicaServlet extends HttpServlet {
         super.service(req, resp);
     }
 
+    private static final java.util.List<String> CATEGORIAS =
+            java.util.Arrays.asList("historia", "cinema", "literatura", "musica", "ciencias", "esportes");
+
+    private static void validaCategoria(String categoria) {
+        Campos.exige(categoria != null && !categoria.isBlank(), "A categoria é obrigatória.");
+        Campos.exige(CATEGORIAS.contains(categoria), "Valor inválido para a categoria.");
+    }
+
+    private static void validaAnoDica(int ano) {
+        Campos.exige(ano > 1900, "O ano da dica deve ser maior que 1900.");
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String acao = req.getParameter("acao");
@@ -49,24 +61,30 @@ public class DicaServlet extends HttpServlet {
         try {
             if ("cadastrar".equals(acao)) {
                 Dica dica = new Dica();
+                Campos.exige(campos.preenchido("textoDica"), "O texto da dica é obrigatório.");
+                Campos.exige(campos.texto("textoDica").length() <= 500, "O texto da dica deve ter no máximo 500 caracteres.");
                 dica.setTextoDica(campos.texto("textoDica"));
-                dica.setAnoDica(campos.inteiro("anoDica"));
+                Campos.exige(campos.preenchido("anoDica"), "O ano da dica é obrigatório.");
+                dica.setAnoDica(campos.inteiro("anoDica", "Ano da dica"));
+                validaAnoDica(dica.getAnoDica());
                 if (campos.preenchido("dicaID")) {
-                    dica.setDicaID(campos.inteiro("dicaID"));
+                    dica.setDicaID(campos.inteiro("dicaID", "ID da dica"));
                 }
+                validaCategoria(campos.texto("categoria"));
                 dica.setCategoria(campos.texto("categoria"));
                 dao.adiciona(dica);
                 sucesso = true;
                 mensagem = "Dica cadastrada com sucesso!";
             } else if ("alterar".equals(acao)) {
                 // só o ID é obrigatório: campo vazio mantém o valor salvo
-                Dica dica = dao.busca(campos.inteiro("dicaID"));
+                Dica dica = dao.busca(campos.inteiro("dicaID", "ID da dica"));
                 if (dica == null) {
                     mensagem = "Nenhuma dica encontrada com esse ID.";
                 } else {
                     boolean mudou = false;
                     // textoDica é NOT NULL no banco: não tem a opção de apagar
                     if (campos.preenchido("textoDica")) {
+                        Campos.exige(campos.texto("textoDica").length() <= 500, "O texto da dica deve ter no máximo 500 caracteres.");
                         dica.setTextoDica(campos.texto("textoDica"));
                         mudou = true;
                     }
@@ -74,9 +92,12 @@ public class DicaServlet extends HttpServlet {
                         dica.setAnoDica(0); // o DAO grava 0 como NULL
                         mudou = true;
                     } else if (campos.preenchido("anoDica")) {
-                        dica.setAnoDica(campos.inteiro("anoDica"));
+                        dica.setAnoDica(campos.inteiro("anoDica", "Ano da dica"));
+                        validaAnoDica(dica.getAnoDica());
                         mudou = true;
-                    } else if(campos.preenchido("categoria")) {
+                    }
+                    if (campos.preenchido("categoria")) {
+                        validaCategoria(campos.texto("categoria"));
                         dica.setCategoria(campos.texto("categoria"));
                         mudou = true;
                     }
@@ -92,7 +113,7 @@ public class DicaServlet extends HttpServlet {
                     }
                 }
             } else if ("consultar".equals(acao)) {
-                Dica dica = dao.busca(campos.inteiro("dicaID"));
+                Dica dica = dao.busca(campos.inteiro("dicaID", "ID da dica"));
                 if (dica == null) {
                     mensagem = "Nenhuma dica encontrada com esse ID.";
                 } else {
@@ -101,7 +122,7 @@ public class DicaServlet extends HttpServlet {
                     detalhes = detalhesDe(dica);
                 }
             } else if ("remover".equals(acao)) {
-                if (dao.remove(campos.inteiro("dicaID"))) {
+                if (dao.remove(campos.inteiro("dicaID", "ID da dica"))) {
                     sucesso = true;
                     mensagem = "Dica removida com sucesso!";
                 } else {
@@ -123,7 +144,8 @@ public class DicaServlet extends HttpServlet {
             mensagem = "Preencha os campos numéricos com valores válidos.";
         } catch (RuntimeException e) {
             // erros do banco, ex.: ano inexistente em jogo (chave estrangeira) ou ID duplicado
-            mensagem = "Erro no banco de dados: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+            log("Erro no banco de dados", e);
+            mensagem = Campos.mensagemBanco(e, "dica", "O ano informado não existe.");
         }
 
         req.setAttribute("status", sucesso ? "sucesso" : "erro");

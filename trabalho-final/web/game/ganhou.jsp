@@ -1,4 +1,10 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%
+    if (session.getAttribute("userID") == null || session.getAttribute("anoCorreto") == null || session.getAttribute("pontuacao") == null) {
+        response.sendRedirect("jogar");
+        return;
+    }
+%>
 <% request.setCharacterEncoding("UTF-8"); /* antes do jsp:include, para o jsp:param com acento chegar certo */ %>
 <%@ page import="java.util.List, java.util.Map, yeardle.*" %>
 <%!
@@ -15,8 +21,10 @@
 <main>
     <div class="alerta-sucesso">
         <h2>Você ganhou!! :) </h2>
-        <h1> Pontuacao: <%= session.getAttribute("pontuacao") %> </h1>
+        <h1> Pontuação: <%= session.getAttribute("pontuacao") %> </h1>
+        <p> O ano era: <%= session.getAttribute("anoCorreto") %></p>
+        <p><a href="jogar?proximo=1">Jogar outro dia</a></p>
     </div>
 </main>
 
-<jsp:include page="footer.jsp" />
+<jsp:include page="footerGame.jsp" />

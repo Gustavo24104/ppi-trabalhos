@@ -4,6 +4,8 @@
     if (tituloPagina == null || tituloPagina.isBlank()) {
         tituloPagina = "Yeardle";
     }
+    // escapa para nao executar HTML vindo do parametro
+    tituloPagina = tituloPagina.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
 %>
 <!DOCTYPE html>
 <html lang="pt-br">

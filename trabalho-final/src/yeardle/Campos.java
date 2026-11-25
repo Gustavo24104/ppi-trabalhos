@@ -31,8 +31,54 @@ public class Campos {
         return valor != null && !valor.isBlank();
     }
 
-    public int inteiro(String campo) {
-        return Integer.parseInt(req.getParameter(campo));
+    // lê um número inteiro; se for inválido (vazio, texto ou grande demais), a mensagem nomeia o campo
+    public int inteiro(String campo, String rotulo) {
+        String valor = req.getParameter(campo);
+        try {
+            return Integer.parseInt(valor == null ? "" : valor.trim());
+        } catch (NumberFormatException e) {
+            throw new CampoInvalidoException("O campo '" + rotulo + "' deve ser um número inteiro válido.");
+        }
+    }
+
+    // lança erro de preenchimento se a condição de validação falhar
+    public static void exige(boolean valido, String mensagem) {
+        if (!valido) {
+            throw new CampoInvalidoException(mensagem);
+        }
+    }
+
+    // traduz erro do banco (RuntimeException que embrulha SQLException) em mensagem amigável
+    public static String mensagemBanco(RuntimeException e) {
+        return mensagemBanco(e, "dados", "O registro referenciado não existe.");
+    }
+
+    // duplicado: nome dos campos que conflitaram; referencia: mensagem da chave estrangeira (1452)
+    public static String mensagemBanco(RuntimeException e, String duplicado, String referencia) {
+        Throwable causa = e.getCause() != null ? e.getCause() : e;
+        if (causa instanceof java.sql.SQLException) {
+            java.sql.SQLException sql = (java.sql.SQLException) causa;
+            int codigo = sql.getErrorCode();
+            if (codigo == 1062) {
+                return "Já existe um registro com esse " + duplicado + ".";
+            }
+            if (codigo == 1452) {
+                return referencia;
+            }
+            if (codigo == 1451) {
+                return "Este registro não pode ser removido porque está sendo usado por outros dados.";
+            }
+            if (codigo == 1265 || codigo == 1366) {
+                return "Valor inválido para a categoria.";
+            }
+            if (codigo == 3819 || codigo == 4025) {
+                return "Algum valor informado não respeita as regras do banco (ex.: ano maior que 1900).";
+            }
+            if (sql instanceof java.sql.SQLIntegrityConstraintViolationException) {
+                return "Os dados informados violam uma regra de integridade do banco.";
+            }
+        }
+        return "Não foi possível concluir a operação no banco de dados.";
     }
 
     // true se o usuário marcou "apagar valor salvo" para o campo
